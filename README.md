@@ -1,13 +1,15 @@
 # **Bootcamp Project Idea** <br>`Wren Hall`
 
-## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/crown.svg"  height="24px"> **_Description:_**
-I will be creating a dashboard to help organize and plan a personal Unity project. This will include timelines of what I'm currently working on as well as a small wiki with the details I've already worked out. Additionally, I'll create forms so that I can easily add to the wiki, or update my timeline/gantt chart. 
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/regular/star.svg"  height="24px"> **_Description:_**
 
-I plan on updating a sample MySQL database with some of this data, using an API though ASP.NET to pull/push data to the database, and Angular to navigate a user though this process. I may include some of ASP.NET's user authentication just for extra practice. I also intend to explore more of Angular's built-in unit testing features, once I've learned more about them. 
+I will be creating a dashboard to help organize and plan a personal Unity project. This will include timelines of what I'm currently working on as well as a small wiki with the details I've already worked out. Additionally, I'll create forms so that I can easily add to the wiki, or update my timeline/gantt chart.
+
+I plan on updating a sample MySQL database with some of this data, using an API though ASP.NET for CRUD functionality and using Angular to navigate a user though this process. I may include some of ASP.NET's user authentication just for extra practice. I also intend to explore more of Angular's built-in unit testing features, once I've learned more about them.
 
 ---
 
-## **_Goals:_** 
+## **_Goals:_**
+
 By the time I have completed this project, I will hopefully have learned enough about web dev to be comfortable creating basic projects with Angular and ASP.NET Core. <br><br>
 
 This project should show basic competency with:
@@ -60,11 +62,12 @@ These the tools I plan to use for the project.
 - GitHub (Version Control)
 
 ---
-    Notes for Goal: 
-    - presentation, business, database layers, 
+
+    Notes for Goal:
+    - presentation, business, database layers,
     - saving data,
     - SOLID principles of OO,
-    - classes focused on one thing, 
+    - classes focused on one thing,
     - use dependence injection,
     - version control.
     - focus on the process`
