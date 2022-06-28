@@ -8,7 +8,7 @@ I plan on updating a sample MySQL database with some of this data, using an API 
 
 ---
 
-## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/regular/star.svg"  height="24px"> **_Goals:_**
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/star.svg"  height="24px"> **_Goals:_**
 
 By the time I have completed this project, I will hopefully have learned enough about web dev to be comfortable creating basic projects with Angular and ASP.NET Core. <br><br>
 
