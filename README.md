@@ -1,6 +1,6 @@
 # **Bootcamp Project Idea** <br>`Wren Hall`
 
-## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/regular/star.svg"  height="24px"> **_Description:_**
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/regular/clipboard.svg"  height="24px"> **_Description:_** 
 
 I will be creating a dashboard to help organize and plan a personal Unity project. This will include timelines of what I'm currently working on as well as a small wiki with the details I've already worked out. Additionally, I'll create forms so that I can easily add to the wiki, or update my timeline/gantt chart.
 
@@ -8,7 +8,7 @@ I plan on updating a sample MySQL database with some of this data, using an API 
 
 ---
 
-## **_Goals:_**
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/regular/star.svg"  height="24px"> **_Goals:_**
 
 By the time I have completed this project, I will hopefully have learned enough about web dev to be comfortable creating basic projects with Angular and ASP.NET Core. <br><br>
 
@@ -29,7 +29,7 @@ In addition, the project will demonstrate a good grasp of
 
 ---
 
-## **_Plan:_**
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/regular/compass.svg"  height="24px"> **_Plan:_**
 
 This is a tentative outline of the plan / timeframe for completing this project, assuming continued meetings TF.
 | Date | Milestone | Notes |
@@ -41,7 +41,7 @@ This is a tentative outline of the plan / timeframe for completing this project,
 
 ---
 
-## **_Coursework Used:_**
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/book.svg"  height="24px"> **_Coursework Used:_**
 
 These are the main resources I anticipate using for this project.
 
@@ -50,7 +50,7 @@ These are the main resources I anticipate using for this project.
 
 ---
 
-## **_Tools Used:_**
+## <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/computer.svg"  height="24px"> **_Tools Used:_**
 
 These the tools I plan to use for the project.
 
