@@ -6,7 +6,7 @@ I will be creating a dashboard to help organize and plan a personal Unity projec
 
 I plan on updating a sample MySQL database with some of this data, using an API though ASP.NET for CRUD functionality and using Angular to navigate a user though this process. I may include some of ASP.NET's user authentication just for extra practice. I also intend to explore more of Angular's built-in unit testing features, once I've learned more about them.
 
-[Here]("https://www.figma.com/file/tyRzPgPY7wv1TOk7vMGvvY/Invictus-dashboard?node-id=0%3A1") is a Figma link to a working mockup of what I want the site to look like. 
+[Here](https://www.figma.com/file/tyRzPgPY7wv1TOk7vMGvvY/Invictus-dashboard?node-id=0%3A1) is a Figma link to a working mockup of what I want the site to look like. 
 
 ---
 
