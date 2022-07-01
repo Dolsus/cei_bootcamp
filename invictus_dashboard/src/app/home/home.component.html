@@ -1,17 +1,73 @@
-<div class="container-fluid bg_img">
+<div class="container-fluid bg_img h-100">
   <div class="row">
-    <div class="col-8 offset-2 img_cover">
+    <div class="col-8 offset-2 img_cover mb-5">
       <div class="row text-center my-3">
-        <h2>Welcome to the Invictus dashboard!</h2>
+        <h2><strong> Welcome to the Invictus dashboard!</strong></h2>
       </div>
       <div class="row">
-        <div class="col-10 offset-1 bg-white">
-          <p>gantt stuff here?</p>
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
+          <div class="row text-center bg-light rounded">
+            <h4>{{ start_string }} - {{ end_string }} Sprint</h4>
+          </div>
+          <div class="row">
+            <div class="container-fluid bg-light py-2 border-bottom">
+              <div class="progress">
+                <div
+                  class="progress-bar bg-primary"
+                  role="progressbar"
+                  [style.width.%]="sprint_progress"
+                  aria-valuenow="0"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  {{ sprint_progress }}% complete
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <p>gantt stuff here?</p>
+            <p>pull this from a to-do table somewhere</p>
+            <p>also include button to a form for adding gantt stuff</p>
+          </div>
         </div>
       </div>
-      <div class="row my-3">
-        <div class="col-10 offset-1 bg-white">
+      <div class="row my-4">
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
           <p>game description here?</p>
+          <p>
+            maybe archive old sprints! - could also add a link at the top &
+            organize them
+          </p>
+        </div>
+      </div>
+      <div class="row my-4">
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
+          <p>maybe show off latest art here</p>
+        </div>
+      </div>
+      <div class="row my-4">
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
+          <p>maybe show off latest art here</p>
+        </div>
+      </div>
+      <div class="row my-4">
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
+          <p>game description here?</p>
+          <p>
+            maybe archive old sprints! - could also add a link at the top &
+            organize them
+          </p>
+        </div>
+      </div>
+      <div class="row my-4">
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
+          <p>maybe show off latest art here</p>
+        </div>
+      </div>
+      <div class="row my-4">
+        <div class="col-10 offset-1 bg-white rounded" style="height: 200px">
+          <p>maybe show off latest art here</p>
         </div>
       </div>
     </div>

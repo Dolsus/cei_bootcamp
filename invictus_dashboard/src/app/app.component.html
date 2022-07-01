@@ -1,20 +1,32 @@
 <div>
-
   <div class="container-fluid bg-dark">
-
-    <div class="row text-center  pt-4">
+    <div class="row text-center pt-5">
       <div class="col">
-        <a class="h1 title nav-link" routerLink="">{{ title }}</a>
+        <a class="h1 title nav-link" routerLink=""
+          ><strong>{{ title }}</strong></a
+        >
       </div>
     </div>
     <div class="row">
-      <nav class="navbar navbar-expand navbar-light col">
+      <nav
+        class="navbar navbar-expand navbar-light col"
+        (window:scroll)="onScroll($event)"
+        [ngClass]="{ 'fixed-top': !atTop, 'bg-dark': !atTop }"
+      >
         <div class="collapse navbar-collapse">
           <ul class="nav nav-pills">
             <li><a class="nav-link title_nav" routerLink="/home">Home</a></li>
-            <li><a class="nav-link title_nav" routerLink="/factions">Factions</a></li>
-            <li><a class="nav-link title_nav" routerLink="/quests">Quests</a></li>
-            <li><a class="nav-link title_nav" routerLink="/companions">Companions</a></li>
+            <li>
+              <a class="nav-link title_nav" routerLink="/factions">Factions</a>
+            </li>
+            <li>
+              <a class="nav-link title_nav" routerLink="/quests">Quests</a>
+            </li>
+            <li>
+              <a class="nav-link title_nav" routerLink="/companions"
+                >Companions</a
+              >
+            </li>
           </ul>
         </div>
       </nav>
