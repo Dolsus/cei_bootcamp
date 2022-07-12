@@ -1,0 +1,245 @@
+<div class="row mb-4">
+  <div class="col-10 offset-1 bg-white rounded">
+    <div class="row text-center bg-light rounded-top">
+      <h4>{{ startString }} - {{ endString }} Sprint</h4>
+    </div>
+    <div class="row bg-light">
+      <div class="container-fluid">
+        <i
+          class="fa fa-caret-down"
+          aria-hidden="true"
+          [ngStyle]="{ 'margin-left': caretProgress }"
+        ></i>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="container-fluid bg-light pb-2 border-bottom">
+        <div class="progress">
+          <div
+            class="progress-bar bg-primary"
+            role="progressbar"
+            [style.width.%]="sprintProgress"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ sprintProgress }}% complete
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row rounded-bottom container-fluid">
+      <p class="text-warning">{{ errMsg }}</p>
+      <ul *ngIf="false">
+        <!-- These are my own notes for what I'm working on in the project. -->
+        <li><s>include button to a form for adding gantt stuff</s></li>
+        <li><s>show sub-tasks</s></li>
+        <li><s>update sub-task's "complete" attribute when row clicked</s></li>
+        <li><s>add check boxes to change completed status</s></li>
+        <li>
+          add page for settings? change sprint start date / length, change
+          number of completed tasks shown?
+        </li>
+        <li>
+          <s>
+            add cute message when list of uncompleted + overdue tasks are empty
+            :)
+          </s>
+        </li>
+        <li><s>add button to edit existing tasks</s></li>
+        <li>
+          <s>
+            add button to delete existing tasks (include this option on edit)
+          </s>
+        </li>
+        <li>
+          add dropdown to see number of completed tasks (add to all lists?)
+        </li>
+        <li>
+          Add additional columns for tasks (completed date?)
+        </li>
+        <li>show validation when only save button pressed</li>
+        <li>fix subtasks being overridden when added</li>
+      </ul>
+
+      <div class="row table-responsive form-check">
+        <table class="table" *ngIf="uncompletedTasks.length">
+          <thead>
+            <tr>
+              <th>Tasks</th>
+              <th>Priority</th>
+              <th class="d-none d-md-block">Difficulty</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-template ngFor let-task [ngForOf]="uncompletedTasks">
+              <tr class="bg-light">
+                <td>
+                  <input
+                    type="checkbox"
+                    class="form-check-input bg-light"
+                    [id]="task.id"
+                    [checked]="task.completed"
+                    (click)="changeTaskCompleteStatus(task.id)"
+                  />
+                  <label [for]="task.id" class="form-check-label">
+                    <b> {{ task.title }} </b>
+                  </label>
+                </td>
+                <td>{{ taskPriority[task.priority] | uppercase }}</td>
+                <td class="d-none d-md-table-cell">
+                  {{ task.difficulty }}
+                </td>
+                <td>
+                  <button
+                    class="btn btn-outline-warning text-black btn-sm"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addTaskModal"
+                    (click)="setIdForModal(task.id)"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngFor="let subtask of task.subTasks" class="bg-white">
+                <td>
+                  <div *ngIf="task.completed === false">
+                    <input
+                      type="checkbox"
+                      class="form-check-input mx-1"
+                      [id]="subtask.id"
+                      [checked]="subtask.completed"
+                      (click)="changeTaskCompleteStatus(subtask.id)"
+                    />
+                    <label [for]="subtask.id" class="form-check-label">
+                      {{ subtask.title }}
+                    </label>
+                  </div>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </ng-template>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row" *ngIf="!uncompletedTasks.length && !overdueTasks.length">
+        <p>All tasks complete :)</p>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4 offset-md-4 offset-sm-3 col-sm-6 d-grid">
+          <button
+            class="btn btn-outline-primary float-right"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#addTaskModal"
+            (click)="setIdForModal(null)"
+          >
+            Add Task
+          </button>
+        </div>
+      </div>
+
+      <dash-dashboard-task-edit
+        (taskChangeEvent)="updateTasks()"
+        [sprintEndDate]="this.endDate"
+        [taskId]="this.idForModal"
+      ></dash-dashboard-task-edit>
+    </div>
+  </div>
+</div>
+
+<ng-template ngFor let-task [ngForOf]="overdueTasks">
+  <div class="row mb-4" *ngIf="overdueTasks.length">
+    <div class="col-10 offset-1 bg-white rounded">
+      <div
+        class="row text-center bg-light-red rounded-top border-bottom-light-red"
+      >
+        <h4>Overdue</h4>
+      </div>
+
+      <div class="row rounded-bottom container-fluid">
+        <div class="table-responsive form-check">
+          <table class="table" *ngIf="tasks.length">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let task of overdueTasks"
+                (click)="changeTaskCompleteStatus(task.id)"
+              >
+                <td>
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    value=""
+                    [id]="task.id"
+                    [checked]="task.completed"
+                    (click)="changeTaskCompleteStatus(task.id)"
+                  />
+                  <label [for]="task.id" class="form-check-label">
+                    {{ task.title }}
+                  </label>
+                </td>
+                <td>{{ taskPriority[task.priority] | uppercase }}</td>
+                <td>{{ task.dueDate | date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<div class="row" *ngIf="completedTasks.length">
+  <div class="col-10 offset-1 bg-white rounded">
+    <div class="row text-center bg-light rounded-top border-bottom">
+      <h4>Completed</h4>
+    </div>
+
+    <div class="row rounded-bottom container-fluid">
+      <div class="table-responsive form-check">
+        <table class="table" *ngIf="completedTasks.length">
+          <thead>
+            <tr>
+              <th>Task</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let task of completedTasks"
+              (click)="changeTaskCompleteStatus(task.id)"
+            >
+              <td>
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  value=""
+                  [id]="task.id"
+                  [checked]="task.completed"
+                  (click)="changeTaskCompleteStatus(task.id)"
+                />
+                <label [for]="task.id" class="form-check-label">
+                  {{ task.title }}
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

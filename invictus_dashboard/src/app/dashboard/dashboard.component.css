@@ -1,0 +1,12 @@
+.bg-light-red {
+  background-color: rgb(250, 212, 212);
+}
+
+.border-bottom-light-red {
+  border-bottom: 1px solid rgb(250, 180, 180);
+}
+
+.modal {
+  max-width: 100vw;
+}
+

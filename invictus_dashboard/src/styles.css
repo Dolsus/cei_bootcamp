@@ -7,3 +7,42 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+.modal{
+  overflow-y: hidden;
+}
+.modal-open {
+  overflow: auto;
+}
+.modal-open[style]{
+ padding-right: 0px !important;
+}
+
+/* width */
+::-webkit-scrollbar {
+  display: block;
+  width: 1.5vw;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .8);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+::-webkit-scrollbar-track-piece:start {
+  margin-top: 172px;
+}
+
+body{
+  overflow: overlay;
+}
