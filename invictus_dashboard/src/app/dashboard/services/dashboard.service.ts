@@ -4,7 +4,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, throwError, tap, map, of } from 'rxjs';
+import { catchError, Observable, throwError, tap, map, of, take } from 'rxjs';
 import { DashboardTask, taskPriority } from './dashboard-task';
 
 @Injectable({
@@ -32,6 +32,7 @@ export class DashboardService {
 
   getTasks(): Observable<DashboardTask[]> {
     return this.http.get<DashboardTask[]>(this.dashboardDataUrl).pipe(
+      take(1),
       // tap((data) => console.log(`Got tasks: ${JSON.stringify(data)}`)),
       catchError(this.handleError)
     );
@@ -44,7 +45,8 @@ export class DashboardService {
 
     const url = `${this.dashboardDataUrl}/${id}`;
     return this.http.get<DashboardTask>(url).pipe(
-      tap((data) =>{}), //console.log(`Got task: ${JSON.stringify(data)}`)),
+      take(1),
+      // tap((data) =>{console.log(`Got task: ${JSON.stringify(data)}`)}),
       catchError(this.handleError)
     );
   }
@@ -68,6 +70,7 @@ export class DashboardService {
     const url = `${this.dashboardDataUrl}/${task.id}`;
 
     return this.http.put<DashboardTask>(url, task, { headers: headers }).pipe(
+      take(1),
       tap(() => {
         console.log(`Updating... id ${task.id} changed.`);
         this.lastTaskModified = task;
@@ -85,6 +88,7 @@ export class DashboardService {
     return this.http
       .post<DashboardTask>(this.dashboardDataUrl, task, { headers: headers })
       .pipe(
+        take(1),
         tap((data) => {
           console.log(`Created task: ${JSON.stringify(data)}`);
           this.lastTaskModified = data;
@@ -95,9 +99,11 @@ export class DashboardService {
 
   deleteTask(id: number): Observable<{}> {
     //TODO: add "deleted" property instead of actually deleting
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json'});
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const url = `${this.dashboardDataUrl}/${id}`;
 
-    return this.http.delete<DashboardTask>(url, {headers: headers});
+    return this.http
+      .delete<DashboardTask>(url, { headers: headers })
+      .pipe(take(1));
   }
 }

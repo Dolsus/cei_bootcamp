@@ -20,18 +20,19 @@
             class="progress-bar bg-primary"
             role="progressbar"
             [style.width.%]="sprintProgress"
+            style="overflow: hidden"
             aria-valuenow="0"
             aria-valuemin="0"
             aria-valuemax="100"
           >
-            {{ sprintProgress }}% complete
+            {{ sprintProgress }}%
           </div>
         </div>
       </div>
     </div>
     <div class="row rounded-bottom container-fluid">
       <p class="text-warning">{{ errMsg }}</p>
-      <ul *ngIf="false">
+      <ul *ngIf="true">
         <!-- These are my own notes for what I'm working on in the project. -->
         <li><s>include button to a form for adding gantt stuff</s></li>
         <li><s>show sub-tasks</s></li>
@@ -56,11 +57,13 @@
         <li>
           add dropdown to see number of completed tasks (add to all lists?)
         </li>
-        <li>
-          Add additional columns for tasks (completed date?)
-        </li>
-        <li>show validation when only save button pressed</li>
-        <li>fix subtasks being overridden when added</li>
+        <li>Add additional columns for tasks (completed date?)</li>
+        <li><s>show validation when only save button pressed</s></li>
+        <li><s> fix subtasks being overridden when addedd</s></li>
+        <li> add login / only add tasks if logged in </li>
+        <li> add login / username to tasks ? expand multi-user cooperation?</li>
+        <li>integrate angular materials over css? flexbox / flex layout with breakpoint? (this replaces css media queries) </li>
+        <li>fix material dialog opening under modal</li>
       </ul>
 
       <div class="row table-responsive form-check">

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
-import { DashboardTask, taskPriority } from './dashboard-task';
-import { DashboardService } from './dashboard.service';
+import { DashboardTask, taskPriority } from '../../services/dashboard-task';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'dash-dashboard',
@@ -27,7 +27,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   public set tasks(value: DashboardTask[]) {
     if (value != this._tasks) {
-      console.log('updated tasks.');
+      // console.log('updated tasks.');
       this._tasks = value;
       this.updateTaskUI();
     }
@@ -96,13 +96,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       diff = this.daysSince(startDate);
     }
     this.startDate = startDate;
-    console.log('days since start: ', diff);
+    // console.log('days since start: ', diff);
 
     const ms_per_two_weeks = 86400000 * 13;
     this.endDate = new Date(startDate.getTime() + ms_per_two_weeks);
 
     this.sprintProgress = Number(((diff * 100) / 14).toFixed(1));
-    //TODO: change this to be smaller when the bar is under 8% (get rid of "completed")
     this.caretProgress = 'calc(' + this.sprintProgress.toString() + '% - 5px)';
 
     this.startString = `${
@@ -138,7 +137,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.errMsg = `task with id ${id} not found.`;
       return;
     } else {
-      console.log(`check box for id ${task.id} clicked`);
+      // console.log(`check box for id ${task.id} clicked`);
       task.completed = !task.completed;
       this.dashboardService.updateTask(task).subscribe({
         // next: () => this.updateTasks(),
@@ -152,7 +151,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTaskUI(): void {
-    console.log('calling ui update...');
+    // console.log('calling ui update...');
     this.uncompletedTasks = this.filterCompleteTasks(false);
     this.overdueTasks = this.filterOverdueTasks();
     this.completedTasks = this.filterCompleteTasks(true);

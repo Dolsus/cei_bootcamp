@@ -9,6 +9,7 @@ import { QuestsComponent } from './quests/quests.component';
 import { CompanionsComponent } from './companions/companions.component';
 import { FactionsComponent } from './factions/factions.component';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AppRoutingModule,
     HttpClientModule,
     DashboardModule,
+    BrowserAnimationsModule,
   ],
   bootstrap: [AppComponent],
 })

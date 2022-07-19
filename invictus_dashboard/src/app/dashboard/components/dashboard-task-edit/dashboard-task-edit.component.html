@@ -2,6 +2,7 @@
   <div
     class="modal fade"
     id="addTaskModal"
+    #addTaskModal
     role="dialog"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
@@ -12,17 +13,20 @@
       class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
     >
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">
+        <div class="modal-header bg-light">
+          <h1 class="modal-title align-middle m-0" id="staticBackdropLabel">
             {{ this.pageTitle }}
-          </h5>
-          <button
+          </h1>
+          <!-- <div class="bg-light rounded"> -->
+            <button
             id="exitBtn"
+            #exitBtn
             type="button"
-            class="btn-close"
+            class="btn-close m-0"
             data-bs-dismiss="modal"
             aria-label="Close"
-          ></button>
+            ></button>
+          <!-- </div> -->
         </div>
         <div class="modal-body">
           <div class="container">
@@ -177,12 +181,16 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-danger" (click)="onDelete()" >Delete</button>
+          <button
+          type="button"
+          class="btn btn-danger"
+          *ngIf="this.taskId > 0"
+          (click)="this.isDeleteDialog = true" >
+          Delete</button>
           <button
             type="button"
             class="btn btn-secondary"
-            data-bs-dismiss="modal"
-            (click)="onCancel()"
+            (click)="this.isDeleteDialog = false"
           >
             Cancel
           </button>
