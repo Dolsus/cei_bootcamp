@@ -1,0 +1,415 @@
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  AbstractControl,
+  FormArray,
+  Validators,
+  FormControl,
+} from '@angular/forms';
+
+import { DashboardTask, taskPriority } from '../../services/dashboard-task';
+import { DashboardService } from '../../services/dashboard.service';
+import { NumberValidators } from '../../../shared/number.validator';
+import { debounceTime, tap } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DefaultDialogComponent } from 'src/app/shared/default-dialog.component';
+import { style } from '@angular/animations';
+import { NgStyle } from '@angular/common';
+
+@Component({
+  selector: 'dash-dashboard-task-edit',
+  templateUrl: './dashboard-task-edit.component.html',
+  styleUrls: ['./dashboard-task-edit.component.css'],
+})
+export class DashboardTaskEditComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
+  taskForm: FormGroup;
+  apiErrMsg: string = '';
+  pageTitle: string = 'Add Task';
+  priority = taskPriority;
+  task: DashboardTask;
+  errMsg: { [key: string]: string } = {};
+  taskEditModal!: HTMLElement;
+  sprintEndDateString!: string;
+  taskFormControls: string[] = [];
+
+  _isDeleteDialog!: boolean;
+  set isDeleteDialog(isDelete: boolean) {
+    this._isDeleteDialog = isDelete;
+    if (!isDelete && this.taskId > 0) {
+      this.onSaveComplete();
+      return;
+    }
+
+    const dialogText: string = this.setDialogText(isDelete);
+    if (isDelete) {
+      this.onDelete(confirm(dialogText));
+    } else {
+      this.onCancel(confirm(dialogText));
+    }
+  }
+
+  private validationMsgs = {
+    required: 'This field is required.',
+    range: 'Please enter a number between 1 and 5.',
+  };
+
+  get subTasks(): FormArray {
+    return <FormArray>this.taskForm.get('subTasks');
+  }
+
+  @Input() taskId: number;
+  @Input() sprintEndDate: Date;
+  @Output() taskChangeEvent: EventEmitter<string> = new EventEmitter<string>();
+
+  @ViewChild('addTaskModal', { read: ElementRef })
+  modalElement!: ElementRef<HTMLElement>;
+  @ViewChild('exitBtn', { read: ElementRef, static: false })
+  exitBtnElement!: ElementRef<HTMLElement>;
+
+  constructor(
+    private fb: FormBuilder,
+    private dashboardService: DashboardService,
+    private dialog: MatDialog
+  ) {}
+
+  ngOnInit(): void {
+    this.checkComponentInputs();
+    this.buildTaskForm();
+  }
+
+  ngAfterViewInit(): void {
+    this.addModalEventListeners();
+    // console.log(this.exitBtnElement);
+  }
+
+  addModalEventListeners(): void {
+    if (!this.modalElement) {
+      return;
+    }
+    this.taskEditModal = this.modalElement.nativeElement;
+    this.taskEditModal.addEventListener(
+      'shown.bs.modal',
+      this.initOnModalOpen.bind(this)
+    );
+
+    this.taskEditModal.addEventListener(
+      'hidden.bs.modal',
+      this.onSaveComplete.bind(this)
+    );
+  }
+
+  initOnModalOpen(): void {
+    this.apiErrMsg = '';
+    this.checkComponentInputs();
+    this.buildTaskForm();
+  }
+
+  checkComponentInputs(): void {
+    this.apiErrMsg = '';
+    if (!this.taskId || this.taskId === 0) {
+      this.taskId = 0;
+    } else {
+      this.getTask(this.taskId);
+    }
+
+    if (!this.sprintEndDate) {
+      this.sprintEndDate = new Date();
+    }
+    this.sprintEndDateString = new Date(this.sprintEndDate)
+      .toISOString()
+      .split('T')[0];
+  }
+
+  buildTaskForm(): void {
+    this.taskForm = this.buildTaskGroup();
+
+    this.addGroupValueChangeSubscriptions(this.taskForm);
+  }
+
+  addGroupValueChangeSubscriptions(
+    group: FormGroup,
+    arrayLength?: number
+  ): void {
+    var controlAppend: string = '';
+    if (arrayLength) {
+      controlAppend = arrayLength.toString();
+    }
+
+    for (let i in group.controls) {
+      const validation = group.get(i);
+      // console.log(i);
+      this.errMsg[i] = '';
+      const control = i + controlAppend;
+      this.taskFormControls.push(control);
+      // console.log(this.taskFormControls);
+      validation?.valueChanges.pipe(debounceTime(1000)).subscribe((value) => {
+        // console.log(`${control}: ${value}`);
+        this.setMsg(validation, control);
+      });
+    }
+  }
+
+  setMsg(c: AbstractControl, control: string): void {
+    this.errMsg[control] = '';
+    if ((c.touched || c.dirty) && c.errors) {
+      console.log(`Error for ${control}: ${Object.keys(c.errors)}`);
+
+      this.errMsg[control] = Object.keys(c.errors)
+        .map(
+          (key) => this.validationMsgs[key as keyof typeof this.validationMsgs]
+        )
+        .join(' ');
+    }
+  }
+
+  buildTaskGroup(): FormGroup {
+    return this.fb.group({
+      id: [this.taskId],
+      title: ['', [Validators.required]],
+      difficulty: [1, [Validators.required, NumberValidators.range(1, 5)]],
+      priority: [taskPriority.standard, [Validators.required]],
+      completed: [false, [Validators.required]],
+
+      description: [''],
+      startDate: [new Date()],
+      dueDate: [this.sprintEndDateString],
+      subTasks: this.fb.array([]),
+    });
+  }
+
+  addSubTask(): void {
+    const numSubTasks = this.subTasks.length;
+    // console.log('adding subtask ' + numSubTasks);
+
+    this.subTasks.push(this.buildTaskGroup());
+    const subTaskGroup: FormGroup = (
+      this.taskForm.get('subTasks') as FormArray
+    ).at(numSubTasks) as FormGroup;
+
+    var subTaskId: number = numSubTasks + 1;
+    while (subTaskId >= 1) {
+      subTaskId /= 10;
+    }
+
+    subTaskId += this.taskForm.get('id').value;
+
+    subTaskGroup.get('id').setValue(subTaskId);
+
+    // console.log(`sub-task id: ${subTaskGroup.get('id').value}`);
+
+    this.addGroupValueChangeSubscriptions(subTaskGroup, numSubTasks);
+  }
+
+  deleteSubTask(index: number) {
+    const subTask = (this.taskForm.get('subTasks') as FormArray).at(index);
+    subTask.clearValidators();
+    subTask.updateValueAndValidity();
+    this.subTasks.removeAt(index);
+    this.subTasks.markAsDirty();
+  }
+
+  getTask(id: number) {
+    this.dashboardService.getTask(id).subscribe({
+      next: (task: DashboardTask) => this.displayTask(task),
+      error: (err) => (this.apiErrMsg = err),
+    });
+  }
+
+  displayTask(task: DashboardTask) {
+    if (this.taskForm) {
+      this.taskForm.reset();
+    }
+    this.task = task;
+
+    if (this.task.id === 0) {
+      this.pageTitle = 'Add Task';
+    } else {
+      this.pageTitle = 'Edit ' + task.title;
+    }
+
+    this.taskForm.patchValue({
+      id: this.task.id,
+      title: this.task.title,
+      difficulty: this.task.difficulty,
+      priority: this.task.priority,
+      completed: this.task.completed,
+
+      description: this.task.description,
+      startDate: this.task.startDate,
+      dueDate: this.task.dueDate,
+    });
+
+    for (var index in this.task.subTasks) {
+      this.addSubTask();
+      var numSubTasks = this.subTasks.length;
+      this.subTasks.at(numSubTasks - 1).patchValue({
+        // id: this.task.id,
+        title: this.task.subTasks[index].title,
+        completed: this.task.subTasks[index].completed,
+
+        description: this.task.subTasks[index].description,
+        startDate: this.task.subTasks[index].startDate,
+        dueDate: this.task.subTasks[index].dueDate,
+      });
+    }
+  }
+
+  onSave() {
+    if (this.taskForm.valid) {
+      if (this.taskForm.dirty) {
+        // console.log('Saving...');
+        const t: DashboardTask = { ...this.task, ...this.taskForm.value };
+        console.log(t);
+
+        if (t.id === 0) {
+          // console.log(`creating task: ${t.title}`);
+          this.dashboardService.createTask(t).subscribe({
+            next: () => {
+              // console.log('creating..');
+              if (this.dashboardService.lastTaskModified) {
+                this.initSubTasks(this.dashboardService.lastTaskModified);
+              }
+            },
+            error: (err) => {
+              this.apiErrMsg = err;
+              console.log(err);
+            },
+          });
+        } else {
+          this.dashboardService.updateTask(t).subscribe({
+            next: () => {
+              this.initSubTasks(t);
+            },
+            error: (err) => {
+              this.apiErrMsg = err;
+              console.log(err);
+            },
+          });
+        }
+      } else {
+        this.onSaveComplete();
+      }
+    } else {
+      this.apiErrMsg = 'Please correct the validation errors.';
+      this.checkAllValidation();
+    }
+  }
+
+  checkAllValidation(): void {
+    // console.log('checking validation');
+    for (let control in this.taskFormControls) {
+      // console.log(this.taskFormControls[control]);
+      const validation = this.taskForm.get(this.taskFormControls[control]);
+      if (validation) {
+        validation.markAsTouched();
+        validation.updateValueAndValidity();
+      }
+    }
+  }
+
+  initSubTasks(task: DashboardTask): void {
+    // console.log('initiating sub tasks');
+    var subTaskAltered: boolean = false;
+    for (let subTask in task.subTasks) {
+      var subTaskId = task.subTasks[subTask].id;
+      if (subTaskId < 1) {
+        // console.log(
+        //   `subtask ${task.subTasks[subTask].title} id: ${
+        //     task.subTasks[subTask].id
+        //   } changed to: ${subTaskId + task.id}.`
+        // );
+        subTaskId += task.id;
+        subTaskAltered = true;
+      } else {
+        console.log('subtask id over 1: ' + subTaskId);
+      }
+    }
+
+    if (subTaskAltered) {
+      // console.log('sub-tasks added. updating...');
+      this.dashboardService.updateTask(task).subscribe({
+        next: () => this.onSaveComplete(),
+        error: (err) => {
+          this.apiErrMsg = err;
+          console.log(err);
+        },
+      });
+    } else {
+      this.onSaveComplete();
+    }
+  }
+
+  onCancel(confirm: boolean) {
+    if (confirm) {
+      this.onSaveComplete();
+    }
+  }
+
+  onDelete(confirm: boolean) {
+    console.log('delete confirmed: ', confirm);
+    if (!this.task.id || this.task.id === 0) {
+      if (!confirm) {
+        this.onSaveComplete();
+      }
+    } else {
+      if (confirm) {
+        this.dashboardService.deleteTask(this.task.id).subscribe({
+          next: () => this.onSaveComplete(),
+          error: (err) => (this.apiErrMsg = err),
+        });
+      }
+    }
+  }
+
+  setDialogText(isDelete: boolean): string {
+    var modalText: string = '';
+    if (isDelete) {
+      modalText = `Delete ${
+        this.taskForm.get('title').value
+      }? This action cannot be undone.`;
+    } else {
+      modalText =
+        'Leaving the form will clear unsaved data. Are you sure you want to exit?';
+    }
+    return modalText;
+  }
+
+  onSaveComplete(): void {
+    this.taskForm.reset();
+    this.taskChangeEvent.emit('task');
+    this.exitBtnElement.nativeElement.click();
+  }
+
+  ngOnDestroy(): void {
+    console.log('dashboard destroyed.');
+    this.taskEditModal.removeAllListeners();
+  }
+
+  openDialog(bodyText: string, callback: Function): void {
+    const dialogRef = this.dialog.open(DefaultDialogComponent, {
+      width: '300px',
+      data: bodyText,
+      panelClass: 'material-dialog',
+      backdropClass: 'material-dialog',
+    });
+
+    //this will end its own subscription
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('dialog closed.');
+      callback(result);
+    });
+  }
+}

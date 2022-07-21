@@ -1,0 +1,204 @@
+<div class="row">
+  <div
+    class="modal fade"
+    id="addTaskModal"
+    #addTaskModal
+    role="dialog"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+  >
+    <div
+      class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+    >
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h1 class="modal-title align-middle m-0" id="staticBackdropLabel">
+            {{ this.pageTitle }}
+          </h1>
+          <!-- <div class="bg-light rounded"> -->
+            <button
+            id="exitBtn"
+            #exitBtn
+            type="button"
+            class="btn-close m-0"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+            ></button>
+          <!-- </div> -->
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <span class="text-danger">{{ apiErrMsg }}</span>
+            <form novalidate (ngSubmit)="onSave()" [formGroup]="taskForm">
+              <div class="form-group mb-2 row">
+                <label for="title" class="col-form-label col-md-2">
+                  Task Title:
+                </label>
+                <div class="col-8">
+                  <input
+                    type="text"
+                    id="title"
+                    class="form-control"
+                    placeholder="Task title (required)"
+                    formControlName="title"
+                    [ngClass]="{ 'is-invalid': errMsg['title'] }"
+                  />
+                  <span class="invalid-feedback"> {{ errMsg["title"] }} </span>
+                </div>
+              </div>
+
+              <div class="form-group mb-2 row">
+                <label for="difficulty" class="col-form-label col-md-2">
+                  Difficulty:
+                </label>
+                <div class="col-8">
+                  <input
+                    type="number"
+                    min="1"
+                    max="5"
+                    id="difficulty"
+                    class="form-control"
+                    placeholder="Task difficulty (required)"
+                    formControlName="difficulty"
+                    [ngClass]="{ 'is-invalid': errMsg['difficulty'] }"
+                  />
+                  <span class="invalid-feedback">
+                    {{ errMsg["difficulty"] }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="form-group mb-2 row">
+                <label for="priority" class="col-form-label col-md-2">
+                  Priority:
+                </label>
+                <div class="col-8">
+                  <select
+                    id="priority"
+                    class="form-select"
+                    formControlName="priority"
+                    [ngClass]="{ 'is-invalid': errMsg['priority'] }"
+                  >
+                    <option [value]="priority.low">Low</option>
+                    <option [value]="priority.standard" selected>
+                      Standard
+                    </option>
+                    <option [value]="priority.high">High</option>
+                  </select>
+                  <span class="invalid-feedback">
+                    {{ errMsg["priority"] }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="form-group mb-2 row">
+                <label for="description" class="col-form-label col-md-2">
+                  Task Description:
+                </label>
+                <div class="col-8">
+                  <textarea
+                    type="text"
+                    rows="3"
+                    id="description"
+                    class="form-control"
+                    placeholder="Task Description"
+                    formControlName="description"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-group mb-2 row">
+                <label for="dueDate" class="col-form-label col-md-2">
+                  Task Due:
+                </label>
+                <div class="col-8">
+                  <input
+                    type="date"
+                    id="dueDate"
+                    class="form-control"
+                    placeholder="Task title (required)"
+                    formControlName="dueDate"
+                    [ngClass]="{ 'is-invalid': errMsg['dueDate'] }"
+                  />
+                  <span class="invalid-feedback">
+                    {{ errMsg["dueDate"] }}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                formArrayName="subTasks"
+                *ngFor="let subTaskForm of subTasks.controls; let i = index"
+              >
+                <div [formGroupName]="i">
+                  <div class="form-group mb-2 row">
+                    <div class="col-md-2">
+                      <label
+                        attr.for="{{ 'subTaskTitle' + i }}"
+                        class="col-form-label"
+                      >
+                        Sub-tasks:
+                      </label>
+                    </div>
+                    <div class="col-8">
+                      <input
+                        type="text"
+                        id="{{ 'subTaskTitle' + i }}"
+                        class="form-control"
+                        placeholder="Sub-task Title"
+                        formControlName="title"
+                        [ngClass]="{ 'is-invalid': errMsg['title' + i] }"
+                      />
+                      <span class="invalid-feedback">
+                        {{ errMsg["title" + i] }}
+                      </span>
+                    </div>
+                    <div class="col-md-1">
+                      <button
+                        class="btn btn-outline-danger"
+                        (click)="deleteSubTask(i)"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-2 row">
+                <div class="col-3">
+                  <button
+                    class="btn btn-outline-primary"
+                    type="button"
+                    (click)="addSubTask()"
+                  >
+                    Add sub-task
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+          type="button"
+          class="btn btn-danger"
+          *ngIf="this.taskId > 0"
+          (click)="this.isDeleteDialog = true" >
+          Delete</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="this.isDeleteDialog = false"
+          >
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" (click)="onSave()">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
