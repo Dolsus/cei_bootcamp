@@ -1,5 +1,7 @@
 import { InMemoryDbService, RequestInfo } from 'angular-in-memory-web-api';
 import { Observable } from 'rxjs';
+import { AppUserAuth } from 'src/app/shared/security/app-user-auth';
+import { UsersData } from 'src/app/shared/security/users-data';
 import { DashboardTask, taskPriority } from './dashboard-task';
 
 export class DashboardData implements InMemoryDbService {
@@ -53,6 +55,9 @@ export class DashboardData implements InMemoryDbService {
         completed: true
       }
     ];
-    return { tasks };
+
+    const users: AppUserAuth[] = UsersData;
+
+    return { tasks, users };
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { SecurityService } from 'src/app/shared/security/services/security.service';
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
 import { DashboardService } from '../../services/dashboard.service';
 
@@ -36,7 +37,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._tasks;
   }
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService, private securityService: SecurityService) {}
+
+  get securityObj() {return this.securityService.securityObj}
 
   ngOnInit(): void {
     this.setSprintProgress(new Date('06/27/2022'));
