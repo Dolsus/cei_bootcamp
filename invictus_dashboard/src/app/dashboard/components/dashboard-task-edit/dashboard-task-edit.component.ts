@@ -15,17 +15,12 @@ import {
   AbstractControl,
   FormArray,
   Validators,
-  FormControl,
 } from '@angular/forms';
 
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
 import { DashboardService } from '../../services/dashboard.service';
 import { NumberValidators } from '../../../shared/number.validator';
-import { debounceTime, tap } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { DefaultDialogComponent } from 'src/app/shared/default-dialog.component';
-import { style } from '@angular/animations';
-import { NgStyle } from '@angular/common';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'dash-dashboard-task-edit',
@@ -82,7 +77,6 @@ export class DashboardTaskEditComponent
   constructor(
     private fb: FormBuilder,
     private dashboardService: DashboardService,
-    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -105,10 +99,10 @@ export class DashboardTaskEditComponent
       this.initOnModalOpen.bind(this)
     );
 
-    this.taskEditModal.addEventListener(
-      'hidden.bs.modal',
-      this.onSaveComplete.bind(this)
-    );
+    // this.taskEditModal.addEventListener(
+    //   'hidden.bs.modal',
+    //   this.onSaveComplete.bind(this)
+    // );
   }
 
   initOnModalOpen(): void {
@@ -150,13 +144,10 @@ export class DashboardTaskEditComponent
 
     for (let i in group.controls) {
       const validation = group.get(i);
-      // console.log(i);
       this.errMsg[i] = '';
       const control = i + controlAppend;
       this.taskFormControls.push(control);
-      // console.log(this.taskFormControls);
       validation?.valueChanges.pipe(debounceTime(1000)).subscribe((value) => {
-        // console.log(`${control}: ${value}`);
         this.setMsg(validation, control);
       });
     }
@@ -203,13 +194,9 @@ export class DashboardTaskEditComponent
     while (subTaskId >= 1) {
       subTaskId /= 10;
     }
-
     subTaskId += this.taskForm.get('id').value;
 
     subTaskGroup.get('id').setValue(subTaskId);
-
-    // console.log(`sub-task id: ${subTaskGroup.get('id').value}`);
-
     this.addGroupValueChangeSubscriptions(subTaskGroup, numSubTasks);
   }
 
@@ -309,9 +296,7 @@ export class DashboardTaskEditComponent
   }
 
   checkAllValidation(): void {
-    // console.log('checking validation');
     for (let control in this.taskFormControls) {
-      // console.log(this.taskFormControls[control]);
       const validation = this.taskForm.get(this.taskFormControls[control]);
       if (validation) {
         validation.markAsTouched();
@@ -321,16 +306,10 @@ export class DashboardTaskEditComponent
   }
 
   initSubTasks(task: DashboardTask): void {
-    // console.log('initiating sub tasks');
     var subTaskAltered: boolean = false;
     for (let subTask in task.subTasks) {
       var subTaskId = task.subTasks[subTask].id;
       if (subTaskId < 1) {
-        // console.log(
-        //   `subtask ${task.subTasks[subTask].title} id: ${
-        //     task.subTasks[subTask].id
-        //   } changed to: ${subTaskId + task.id}.`
-        // );
         subTaskId += task.id;
         subTaskAltered = true;
       } else {
@@ -339,7 +318,6 @@ export class DashboardTaskEditComponent
     }
 
     if (subTaskAltered) {
-      // console.log('sub-tasks added. updating...');
       this.dashboardService.updateTask(task).subscribe({
         next: () => this.onSaveComplete(),
         error: (err) => {
@@ -396,20 +374,5 @@ export class DashboardTaskEditComponent
   ngOnDestroy(): void {
     console.log('dashboard destroyed.');
     this.taskEditModal.removeAllListeners();
-  }
-
-  openDialog(bodyText: string, callback: Function): void {
-    const dialogRef = this.dialog.open(DefaultDialogComponent, {
-      width: '300px',
-      data: bodyText,
-      panelClass: 'material-dialog',
-      backdropClass: 'material-dialog',
-    });
-
-    //this will end its own subscription
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('dialog closed.');
-      callback(result);
-    });
   }
 }
