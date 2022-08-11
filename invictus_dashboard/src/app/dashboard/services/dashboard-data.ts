@@ -15,6 +15,7 @@ export class DashboardData implements InMemoryDbService {
         difficulty: 5,
         priority: taskPriority.high,
         completed: false,
+        dueDate: new Date(),
         subTasks: [
           {
             id: 1.1,
@@ -45,14 +46,81 @@ export class DashboardData implements InMemoryDbService {
         title: 'next task',
         difficulty: 2,
         priority: taskPriority.standard,
+        dueDate: new Date(),
         completed: false
+
       },
       {
         id: 4,
+        title: 'completed task 1',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/11/2022')
+      },
+      {
+        id: 5,
+        title: 'completed task 2',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/11/2022')
+      },
+      {
+        id: 6,
+        title: 'completed task 3',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/09/2022')
+      },
+      {
+        id: 7,
+        title: 'completed task 4',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/10/2022')
+      },
+      {
+        id: 8,
+        title: 'completed task 5',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/11/2022')
+      },
+      {
+        id: 9,
+        title: 'completed task old',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/11/2000')
+      },
+      {
+        id: 10,
+        title: 'completed task new',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date()
+      },
+      {
+        id: 11,
         title: 'completed task',
         difficulty: 1,
         priority: taskPriority.low,
-        completed: true
+        completed: true,
+        dueDate: new Date('07/12/2022')
+      },
+      {
+        id: 12,
+        title: 'completed task',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/13/2022')
       }
     ];
 

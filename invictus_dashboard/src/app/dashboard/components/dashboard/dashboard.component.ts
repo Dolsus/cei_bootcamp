@@ -20,15 +20,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   sub!: Subscription;
   errMsg: string = '';
   idForModal: number | null = null;
+  tasksShown: string = 'All';
 
   _tasks: DashboardTask[] = [];
   completedTasks: DashboardTask[] = [];
+  completedTasksShown: DashboardTask[] = [];
   uncompletedTasks: DashboardTask[] = [];
   overdueTasks: DashboardTask[] = [];
 
   public set tasks(value: DashboardTask[]) {
     if (value != this._tasks) {
-      // console.log('updated tasks.');
       this._tasks = value;
       this.updateTaskUI();
     }
@@ -37,9 +38,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._tasks;
   }
 
-  constructor(private dashboardService: DashboardService, private securityService: SecurityService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private securityService: SecurityService
+  ) {}
 
-  get securityObj() {return this.securityService.securityObj}
+  get securityObj() {
+    return this.securityService.securityObj;
+  }
 
   ngOnInit(): void {
     this.setSprintProgress(new Date('06/27/2022'));
@@ -47,7 +53,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTasks(): void {
-    // console.log('updating tasks...');
     this.sub = this.dashboardService.getTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
@@ -66,6 +71,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   filterCompleteTasks(completed: boolean): DashboardTask[] {
     //TODO: add "deleted" property and filter by that also
     return this.tasks.filter((task: DashboardTask) => {
+      if (completed || !task.dueDate) {
+        return task.completed === completed;
+      }
       if (task.dueDate) {
         var taskDueDate: Date = new Date(task.dueDate);
         return (
@@ -99,7 +107,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       diff = this.daysSince(startDate);
     }
     this.startDate = startDate;
-    // console.log('days since start: ', diff);
 
     const ms_per_two_weeks = 86400000 * 13;
     this.endDate = new Date(startDate.getTime() + ms_per_two_weeks);
@@ -138,12 +145,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!task) {
       //if after all that there's no task, something is wrong.
       this.errMsg = `task with id ${id} not found.`;
+      console.log(this.errMsg);
       return;
     } else {
-      // console.log(`check box for id ${task.id} clicked`);
       task.completed = !task.completed;
       this.dashboardService.updateTask(task).subscribe({
-        // next: () => this.updateTasks(),
         error: (err) => {
           this.errMsg = err;
           console.log(err);
@@ -154,13 +160,61 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTaskUI(): void {
-    // console.log('calling ui update...');
     this.uncompletedTasks = this.filterCompleteTasks(false);
     this.overdueTasks = this.filterOverdueTasks();
-    this.completedTasks = this.filterCompleteTasks(true);
+    this.completedTasks = this.filterCompleteTasks(true).sort((a, b) => {
+      return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
+    });
+    this.changeNumTasksViewed(this.tasksShown);
   }
 
   setIdForModal(id: number | null): void {
     this.idForModal = id;
+  }
+
+  changeNumTasksViewed(numTasks: string): void {
+    if (this.tasksShown == numTasks) {
+      if (this.completedTasksShown.length < 1) {
+        this.completedTasksShown = this.completedTasks.map((x) => x);
+      }
+      return;
+    }
+
+    this.tasksShown = numTasks;
+    if (numTasks !== 'All') {
+      var tasksToSee: number = Number(numTasks);
+
+      this.completedTasksShown = this.completedTasksShown
+        .slice(0, tasksToSee)
+        .map((x) => x);
+    } else {
+      if (!this.checkDateOrder(this.completedTasksShown)) {
+        this.completedTasksShown = this.completedTasks.reverse().map((x) => x);
+      } else {
+        this.completedTasksShown = this.completedTasks.map((x) => x);
+      }
+    }
+  }
+
+  swapDateSort(list: DashboardTask[]) {
+    if (this.checkDateOrder(list)) {
+      list = list.sort((a, b) => {
+        return <any>new Date(a.dueDate) - <any>new Date(b.dueDate);
+      });
+    } else {
+      list = list
+        .sort((a, b) => {
+          return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
+        })
+        .map((x) => x);
+    }
+  }
+
+  checkDateOrder(list: DashboardTask[]): boolean {
+    list[0].dueDate = new Date(list[0].dueDate);
+
+    list[list.length - 1].dueDate = new Date(list[list.length - 1].dueDate);
+
+    return list[0].dueDate > list[list.length - 1].dueDate;
   }
 }

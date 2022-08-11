@@ -186,16 +186,51 @@
       </div>
 
       <div class="row rounded-bottom container-fluid">
+        <div class="row m-2">
+          <div class="col container-fluid">
+            <div class="dropdown d-grid d-md-flex justify-content-md-end">
+              <button
+                type="button"
+                class="btn btn-secondary dropdown-toggle"
+                data-bs-toggle="dropdown"
+              >
+                Tasks Shown: {{ tasksShown }}
+              </button>
+              <ul class="dropdown-menu">
+                <li class="dropdown-item" (click)="changeNumTasksViewed('5')">
+                  5
+                </li>
+                <li class="dropdown-item" (click)="changeNumTasksViewed('10')">
+                  10
+                </li>
+                <li class="dropdown-item" (click)="changeNumTasksViewed('All')">
+                  All
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div class="table-responsive form-check">
           <table class="table" *ngIf="completedTasks.length">
             <thead>
               <tr>
                 <th>Task</th>
+                <th>
+                  <div class="row">
+                    <div
+                      class="col-auto"
+                      (click)="swapDateSort(completedTasksShown)"
+                    >
+                      Date Due <i class="fa fa-sort" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
               <tr
-                *ngFor="let task of completedTasks"
+                *ngFor="let task of completedTasksShown"
                 (click)="changeTaskCompleteStatus(task.id)"
               >
                 <td>
@@ -211,6 +246,7 @@
                     {{ task.title }}
                   </label>
                 </td>
+                <td>{{ task.dueDate | date }}</td>
               </tr>
             </tbody>
           </table>

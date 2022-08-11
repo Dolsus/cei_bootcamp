@@ -183,7 +183,7 @@ export class DashboardTaskEditComponent
 
   addSubTask(): void {
     const numSubTasks = this.subTasks.length;
-    // console.log('adding subtask ' + numSubTasks);
+    console.log('adding subtask ' + numSubTasks);
 
     this.subTasks.push(this.buildTaskGroup());
     const subTaskGroup: FormGroup = (
@@ -197,6 +197,7 @@ export class DashboardTaskEditComponent
     subTaskId += this.taskForm.get('id').value;
 
     subTaskGroup.get('id').setValue(subTaskId);
+    console.log(subTaskId);
     this.addGroupValueChangeSubscriptions(subTaskGroup, numSubTasks);
   }
 
@@ -265,7 +266,6 @@ export class DashboardTaskEditComponent
           // console.log(`creating task: ${t.title}`);
           this.dashboardService.createTask(t).subscribe({
             next: () => {
-              // console.log('creating..');
               if (this.dashboardService.lastTaskModified) {
                 this.initSubTasks(this.dashboardService.lastTaskModified);
               }
@@ -308,12 +308,11 @@ export class DashboardTaskEditComponent
   initSubTasks(task: DashboardTask): void {
     var subTaskAltered: boolean = false;
     for (let subTask in task.subTasks) {
-      var subTaskId = task.subTasks[subTask].id;
+      var subTaskId: number = task.subTasks[subTask].id;
       if (subTaskId < 1) {
         subTaskId += task.id;
+        task.subTasks[subTask].id = subTaskId;
         subTaskAltered = true;
-      } else {
-        console.log('subtask id over 1: ' + subTaskId);
       }
     }
 
