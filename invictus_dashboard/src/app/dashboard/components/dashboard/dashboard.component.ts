@@ -21,7 +21,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   sub!: Subscription;
   errMsg: string = '';
   idForModal: number | null = null;
-  tasksShown: string = 'All';
 
   _tasks: DashboardTask[] = [];
 
@@ -29,6 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     all: DashboardTask[];
     shown: DashboardTask[];
     sortedBy?: string;
+    numTasksShown?: string;
   } = {
     all: [],
     shown: [],
@@ -39,6 +39,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     all: DashboardTask[];
     shown: DashboardTask[];
     sortedBy?: string;
+    numTasksShown?: string;
   } = {
     all: [],
     shown: [],
@@ -49,6 +50,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     all: DashboardTask[];
     shown: DashboardTask[];
     sortedBy?: string;
+    numTasksShown?: string;
   } = {
     all: [],
     shown: [],
@@ -199,9 +201,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
     });
     //this will update the date / priority sorting for tasks
-    this.changeNumTasksViewed(this.tasksShown, this.completedTasks);
-    this.changeNumTasksViewed(this.tasksShown, this.overdueTasks);
-    this.changeNumTasksViewed(this.tasksShown, this.uncompletedTasks);
+    this.changeNumTasksViewed(
+      this.completedTasks.numTasksShown,
+      this.completedTasks
+    );
+    this.changeNumTasksViewed(
+      this.overdueTasks.numTasksShown,
+      this.overdueTasks
+    );
+    this.changeNumTasksViewed(
+      this.uncompletedTasks.numTasksShown,
+      this.uncompletedTasks
+    );
   }
 
   setIdForModal(id: number | null): void {
@@ -210,16 +221,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   changeNumTasksViewed(
     numTasks: string,
-    list: { shown: DashboardTask[]; all: DashboardTask[] }
+    list: {
+      shown: DashboardTask[];
+      all: DashboardTask[];
+      numTasksShown?: string;
+    }
   ): void {
-    if (this.tasksShown == numTasks) {
-      if (list.shown.length < 1) {
-        list.shown = list.all.map((x) => x);
-      }
+    if (!list.numTasksShown) {
+      list.numTasksShown = 'All';
+      list.shown = list.all.map((x) => x);
       return;
     }
 
-    this.tasksShown = numTasks;
+    list.numTasksShown = numTasks;
     this.updateShownList(list);
   }
 
@@ -242,9 +256,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   swapPrioritySort(list: {
     shown: DashboardTask[];
     all: DashboardTask[];
-    sortedBy?: string
+    sortedBy?: string;
   }): void {
-    if(list.sortedBy === "priority"){
+    if (list.sortedBy === 'priority') {
       list.all = list.all.reverse().map((x) => x);
     } else {
       list.sortedBy = 'priority';
@@ -258,9 +272,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   swapDifficultySort(list: {
     shown: DashboardTask[];
     all: DashboardTask[];
-    sortedBy?: string
+    sortedBy?: string;
   }): void {
-    if(list.sortedBy === "difficulty"){
+    if (list.sortedBy === 'difficulty') {
       list.all = list.all.reverse().map((x) => x);
     } else {
       list.sortedBy = 'difficulty';
@@ -274,9 +288,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   updateShownList(list: {
     shown: DashboardTask[];
     all: DashboardTask[];
+    numTasksShown?: string;
   }): void {
-    if (this.tasksShown != 'All') {
-      var tasksToSee: number = Number(this.tasksShown);
+    if (list.numTasksShown != 'All') {
+      var tasksToSee: number = Number(list.numTasksShown);
       list.shown = list.all.slice(0, tasksToSee).map((x) => x);
     } else {
       list.shown = list.all.map((x) => x);
