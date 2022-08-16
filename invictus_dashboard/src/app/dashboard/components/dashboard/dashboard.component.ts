@@ -192,7 +192,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   updateTaskUI(): void {
     this.uncompletedTasks.all = this.filterCompleteTasks(false).sort((a, b) => {
-      return b.priority - a.priority;
+      return a.priority - b.priority;
     });
     this.overdueTasks.all = this.filterOverdueTasks();
     this.completedTasks.all = this.filterCompleteTasks(true).sort((a, b) => {
