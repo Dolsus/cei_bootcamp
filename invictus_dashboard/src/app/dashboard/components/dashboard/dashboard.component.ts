@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Type } from '@angular/core';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { SecurityService } from 'src/app/shared/security/services/security.service';
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
 import { DashboardService } from '../../services/dashboard.service';
+import { DashboardTaskEditComponent } from '../dashboard-task-edit/dashboard-task-edit.component';
 
 @Component({
   selector: 'dash-dashboard',
@@ -23,10 +24,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
   tasksShown: string = 'All';
 
   _tasks: DashboardTask[] = [];
-  completedTasks: DashboardTask[] = [];
-  completedTasksShown: DashboardTask[] = [];
-  uncompletedTasks: DashboardTask[] = [];
-  overdueTasks: DashboardTask[] = [];
+
+  completedTasks: {
+    all: DashboardTask[];
+    shown: DashboardTask[];
+    sortedBy?: string;
+  } = {
+    all: [],
+    shown: [],
+    sortedBy: 'dueDate',
+  };
+
+  uncompletedTasks: {
+    all: DashboardTask[];
+    shown: DashboardTask[];
+    sortedBy?: string;
+  } = {
+    all: [],
+    shown: [],
+    sortedBy: 'dueDate',
+  };
+
+  overdueTasks: {
+    all: DashboardTask[];
+    shown: DashboardTask[];
+    sortedBy?: string;
+  } = {
+    all: [],
+    shown: [],
+    sortedBy: 'dueDate',
+  };
 
   public set tasks(value: DashboardTask[]) {
     if (value != this._tasks) {
@@ -88,16 +115,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   filterOverdueTasks(): DashboardTask[] {
     //TODO: add "deleted" property and filter by that also
-    return this.tasks.filter((task: DashboardTask) => {
-      if (task.dueDate) {
-        var taskDueDate: Date = new Date(task.dueDate);
-        return (
-          task.completed === false &&
-          taskDueDate.getTime() <= this.startDate.getTime()
-        );
-      }
-      return false;
-    });
+    return this.tasks
+      .filter((task: DashboardTask) => {
+        if (task.dueDate) {
+          var taskDueDate: Date = new Date(task.dueDate);
+          return (
+            task.completed === false &&
+            taskDueDate.getTime() <= this.startDate.getTime()
+          );
+        }
+        return false;
+      })
+      .sort((a, b) => {
+        return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
+      });
   }
 
   setSprintProgress(startDate: Date) {
@@ -160,61 +191,95 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTaskUI(): void {
-    this.uncompletedTasks = this.filterCompleteTasks(false);
-    this.overdueTasks = this.filterOverdueTasks();
-    this.completedTasks = this.filterCompleteTasks(true).sort((a, b) => {
+    this.uncompletedTasks.all = this.filterCompleteTasks(false).sort((a, b) => {
+      return b.priority - a.priority;
+    });
+    this.overdueTasks.all = this.filterOverdueTasks();
+    this.completedTasks.all = this.filterCompleteTasks(true).sort((a, b) => {
       return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
     });
-    this.changeNumTasksViewed(this.tasksShown);
+    //this will update the date / priority sorting for tasks
+    this.changeNumTasksViewed(this.tasksShown, this.completedTasks);
+    this.changeNumTasksViewed(this.tasksShown, this.overdueTasks);
+    this.changeNumTasksViewed(this.tasksShown, this.uncompletedTasks);
   }
 
   setIdForModal(id: number | null): void {
     this.idForModal = id;
   }
 
-  changeNumTasksViewed(numTasks: string): void {
+  changeNumTasksViewed(
+    numTasks: string,
+    list: { shown: DashboardTask[]; all: DashboardTask[] }
+  ): void {
     if (this.tasksShown == numTasks) {
-      if (this.completedTasksShown.length < 1) {
-        this.completedTasksShown = this.completedTasks.map((x) => x);
+      if (list.shown.length < 1) {
+        list.shown = list.all.map((x) => x);
       }
       return;
     }
 
     this.tasksShown = numTasks;
-    if (numTasks !== 'All') {
-      var tasksToSee: number = Number(numTasks);
-
-      this.completedTasksShown = this.completedTasksShown
-        .slice(0, tasksToSee)
-        .map((x) => x);
-    } else {
-      if (!this.checkDateOrder(this.completedTasksShown)) {
-        this.completedTasksShown = this.completedTasks.reverse().map((x) => x);
-      } else {
-        this.completedTasksShown = this.completedTasks.map((x) => x);
-      }
-    }
+    this.updateShownList(list);
   }
 
-  swapDateSort(list: DashboardTask[]) {
-    if (this.checkDateOrder(list)) {
-      list = list.sort((a, b) => {
-        return <any>new Date(a.dueDate) - <any>new Date(b.dueDate);
+  swapDateSort(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    sortedBy?: string;
+  }): void {
+    if (list.sortedBy === 'dueDate') {
+      list.all = list.all.reverse().map((x) => x);
+    } else {
+      list.sortedBy = 'dueDate';
+      list.all = list.all.sort((a, b) => {
+        return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
       });
-    } else {
-      list = list
-        .sort((a, b) => {
-          return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
-        })
-        .map((x) => x);
     }
+    this.updateShownList(list);
   }
 
-  checkDateOrder(list: DashboardTask[]): boolean {
-    list[0].dueDate = new Date(list[0].dueDate);
+  swapPrioritySort(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    sortedBy?: string
+  }): void {
+    if(list.sortedBy === "priority"){
+      list.all = list.all.reverse().map((x) => x);
+    } else {
+      list.sortedBy = 'priority';
+      list.all = list.all.sort((a, b) => {
+        return a.priority - b.priority;
+      });
+    }
+    this.updateShownList(list);
+  }
 
-    list[list.length - 1].dueDate = new Date(list[list.length - 1].dueDate);
+  swapDifficultySort(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    sortedBy?: string
+  }): void {
+    if(list.sortedBy === "difficulty"){
+      list.all = list.all.reverse().map((x) => x);
+    } else {
+      list.sortedBy = 'difficulty';
+      list.all = list.all.sort((a, b) => {
+        return b.difficulty - a.difficulty;
+      });
+    }
+    this.updateShownList(list);
+  }
 
-    return list[0].dueDate > list[list.length - 1].dueDate;
+  updateShownList(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+  }): void {
+    if (this.tasksShown != 'All') {
+      var tasksToSee: number = Number(this.tasksShown);
+      list.shown = list.all.slice(0, tasksToSee).map((x) => x);
+    } else {
+      list.shown = list.all.map((x) => x);
+    }
   }
 }

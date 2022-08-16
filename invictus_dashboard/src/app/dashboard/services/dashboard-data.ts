@@ -39,7 +39,7 @@ export class DashboardData implements InMemoryDbService {
         difficulty: 1,
         priority: taskPriority.low,
         completed: false,
-        dueDate: new Date("2022-06-13")
+        dueDate: new Date("06/14/2022")
       },
       {
         id: 3,
@@ -121,7 +121,23 @@ export class DashboardData implements InMemoryDbService {
         priority: taskPriority.low,
         completed: true,
         dueDate: new Date('07/13/2022')
-      }
+      },
+      {
+        id: 13,
+        title: 'cooler task',
+        difficulty: 1,
+        priority: taskPriority.standard,
+        completed: false,
+        dueDate: new Date("06/10/2022")
+      },
+      {
+        id: 14,
+        title: 'coolest task',
+        difficulty: 1,
+        priority: taskPriority.high,
+        completed: false,
+        dueDate: new Date("06/19/2022")
+      },
     ];
 
     const users: AppUserAuth[] = UsersData;

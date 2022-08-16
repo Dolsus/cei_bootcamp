@@ -34,17 +34,37 @@
       <div class="row rounded-bottom container-fluid">
         <p class="text-warning">{{ errMsg }}</p>
         <div class="row table-responsive form-check">
-          <table class="table" *ngIf="uncompletedTasks.length">
+          <table class="table" *ngIf="uncompletedTasks.all.length">
             <thead>
               <tr>
                 <th>Tasks</th>
-                <th>Priority</th>
-                <th class="d-none d-md-block">Difficulty</th>
+                <th>
+                  <div class="row">
+                    <div
+                      class="col-auto"
+                      (click)="swapPrioritySort(uncompletedTasks)"
+                    >
+                      Priority <i class="fa fa-sort" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </th>
+
+                <th>
+                  <div class="row">
+                    <div
+                      class="col-auto"
+                      (click)="swapDifficultySort(uncompletedTasks)"
+                    >
+                      Difficulty <i class="fa fa-sort" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </th>
+
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              <ng-template ngFor let-task [ngForOf]="uncompletedTasks">
+              <ng-template ngFor let-task [ngForOf]="uncompletedTasks.all">
                 <tr class="bg-light">
                   <td>
                     <input
@@ -102,7 +122,7 @@
 
         <div
           class="row"
-          *ngIf="!uncompletedTasks.length && !overdueTasks.length"
+          *ngIf="!uncompletedTasks.all.length && !overdueTasks.all.length"
         >
           <p>All tasks complete :)</p>
         </div>
@@ -131,55 +151,74 @@
     </div>
   </div>
 
-  <ng-template ngFor let-task [ngForOf]="overdueTasks">
-    <div class="row mb-4" *ngIf="overdueTasks.length">
-      <div class="col-10 offset-1 bg-white rounded">
-        <div
-          class="row text-center bg-light-red rounded-top border-bottom-light-red"
-        >
-          <h4>Overdue</h4>
-        </div>
+  <!-- <ng-template ngFor let-task [ngForOf]="overdueTasks"> -->
+  <div class="row mb-4" *ngIf="overdueTasks.all.length">
+    <div class="col-10 offset-1 bg-white rounded">
+      <div
+        class="row text-center bg-light-red rounded-top border-bottom-light-red"
+      >
+        <h4>Overdue</h4>
+      </div>
 
-        <div class="row rounded-bottom container-fluid">
-          <div class="table-responsive form-check">
-            <table class="table" *ngIf="tasks.length">
-              <thead>
-                <tr>
-                  <th>Task</th>
-                  <th>Priority</th>
-                  <th>Due Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  *ngFor="let task of overdueTasks"
-                  (click)="changeTaskCompleteStatus(task.id)"
-                >
-                  <td>
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      value=""
-                      [id]="task.id"
-                      [checked]="task.completed"
-                      (click)="changeTaskCompleteStatus(task.id)"
-                    />
-                    <label [for]="task.id" class="form-check-label">
-                      {{ task.title }}
-                    </label>
-                  </td>
-                  <td>{{ taskPriority[task.priority] | uppercase }}</td>
-                  <td>{{ task.dueDate | date }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="row rounded-bottom container-fluid">
+        <div class="table-responsive form-check">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>
+                  <div class="row">
+                    <div
+                      class="col-auto"
+                      (click)="swapPrioritySort(overdueTasks)"
+                    >
+                      Priority <i class="fa fa-sort" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </th>
+                <th>
+                  <div class="row">
+                    <div
+                      class="col-auto"
+                      (click)="swapDateSort(overdueTasks)"
+                    >
+                      Due Date <i class="fa fa-sort" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let task of overdueTasks.shown"
+                (click)="changeTaskCompleteStatus(task.id)"
+              >
+                <td>
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    value=""
+                    [id]="task.id"
+                    [checked]="task.completed"
+                    (click)="changeTaskCompleteStatus(task.id)"
+                  />
+                  <label [for]="task.id" class="form-check-label">
+                    {{ task.title }}
+                  </label>
+                </td>
+                <td>{{ taskPriority[task.priority] | uppercase }}</td>
+                <td>{{ task.dueDate | date }}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </ng-template>
+  </div>
+  <!-- </ng-template> -->
 
-  <div class="row" *ngIf="completedTasks.length">
+  <div class="row" *ngIf="completedTasks.all.length">
     <div class="col-10 offset-1 bg-white rounded">
       <div class="row text-center bg-light rounded-top border-bottom">
         <h4>Completed</h4>
@@ -197,13 +236,28 @@
                 Tasks Shown: {{ tasksShown }}
               </button>
               <ul class="dropdown-menu">
-                <li class="dropdown-item" (click)="changeNumTasksViewed('5')">
+                <li
+                  class="dropdown-item"
+                  (click)="
+                    changeNumTasksViewed('5', completedTasks)
+                  "
+                >
                   5
                 </li>
-                <li class="dropdown-item" (click)="changeNumTasksViewed('10')">
+                <li
+                  class="dropdown-item"
+                  (click)="
+                    changeNumTasksViewed('10', completedTasks)
+                  "
+                >
                   10
                 </li>
-                <li class="dropdown-item" (click)="changeNumTasksViewed('All')">
+                <li
+                  class="dropdown-item"
+                  (click)="
+                    changeNumTasksViewed('All', completedTasks)
+                  "
+                >
                   All
                 </li>
               </ul>
@@ -212,7 +266,7 @@
         </div>
 
         <div class="table-responsive form-check">
-          <table class="table" *ngIf="completedTasks.length">
+          <table class="table" *ngIf="completedTasks.all.length">
             <thead>
               <tr>
                 <th>Task</th>
@@ -220,7 +274,7 @@
                   <div class="row">
                     <div
                       class="col-auto"
-                      (click)="swapDateSort(completedTasksShown)"
+                      (click)="swapDateSort(completedTasks)"
                     >
                       Date Due <i class="fa fa-sort" aria-hidden="true"></i>
                     </div>
@@ -230,7 +284,7 @@
             </thead>
             <tbody>
               <tr
-                *ngFor="let task of completedTasksShown"
+                *ngFor="let task of completedTasks.shown"
                 (click)="changeTaskCompleteStatus(task.id)"
               >
                 <td>
