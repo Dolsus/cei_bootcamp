@@ -15,7 +15,6 @@ import { SecurityService } from '../../services/security.service';
   selector: 'dash-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -117,7 +116,18 @@ export class LoginComponent implements OnInit {
             };
             localStorage.setItem('bearerToken', this.securityObj.bearerToken);
             if (this.returnUrl) {
-              this.router.navigateByUrl(this.returnUrl);
+              //there is probably a better way to check whether a user has the correct permissions
+              //TODO: look into this
+              if (
+                (this.returnUrl == '/companions' ||
+                  this.returnUrl == '/quests' ||
+                  this.returnUrl == '/factions') &&
+                this.securityObj.canAccessWiki
+              ) {
+                this.router.navigateByUrl(this.returnUrl);
+              } else {
+                this.router.navigate(['/home']);
+              }
             } else {
               this.router.navigate(['/home']);
             }

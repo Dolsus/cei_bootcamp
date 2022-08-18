@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Type } from '@angular/core';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { SecurityService } from 'src/app/shared/security/services/security.service';
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
 import { DashboardService } from '../../services/dashboard.service';
+import { DashboardTaskEditComponent } from '../dashboard-task-edit/dashboard-task-edit.component';
 
 @Component({
   selector: 'dash-dashboard',
@@ -22,13 +23,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
   idForModal: number | null = null;
 
   _tasks: DashboardTask[] = [];
-  completedTasks: DashboardTask[] = [];
-  uncompletedTasks: DashboardTask[] = [];
-  overdueTasks: DashboardTask[] = [];
+
+  completedTasks: {
+    all: DashboardTask[];
+    shown: DashboardTask[];
+    sortedBy?: string;
+    numTasksShown?: string;
+  } = {
+    all: [],
+    shown: [],
+    sortedBy: 'dueDate',
+  };
+
+  uncompletedTasks: {
+    all: DashboardTask[];
+    shown: DashboardTask[];
+    sortedBy?: string;
+    numTasksShown?: string;
+  } = {
+    all: [],
+    shown: [],
+    sortedBy: 'dueDate',
+  };
+
+  overdueTasks: {
+    all: DashboardTask[];
+    shown: DashboardTask[];
+    sortedBy?: string;
+    numTasksShown?: string;
+  } = {
+    all: [],
+    shown: [],
+    sortedBy: 'dueDate',
+  };
 
   public set tasks(value: DashboardTask[]) {
     if (value != this._tasks) {
-      // console.log('updated tasks.');
       this._tasks = value;
       this.updateTaskUI();
     }
@@ -37,9 +67,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._tasks;
   }
 
-  constructor(private dashboardService: DashboardService, private securityService: SecurityService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private securityService: SecurityService
+  ) {}
 
-  get securityObj() {return this.securityService.securityObj}
+  get securityObj() {
+    return this.securityService.securityObj;
+  }
 
   ngOnInit(): void {
     this.setSprintProgress(new Date('06/27/2022'));
@@ -47,7 +82,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTasks(): void {
-    // console.log('updating tasks...');
     this.sub = this.dashboardService.getTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
@@ -66,6 +100,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   filterCompleteTasks(completed: boolean): DashboardTask[] {
     //TODO: add "deleted" property and filter by that also
     return this.tasks.filter((task: DashboardTask) => {
+      if (completed || !task.dueDate) {
+        return task.completed === completed;
+      }
       if (task.dueDate) {
         var taskDueDate: Date = new Date(task.dueDate);
         return (
@@ -80,16 +117,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   filterOverdueTasks(): DashboardTask[] {
     //TODO: add "deleted" property and filter by that also
-    return this.tasks.filter((task: DashboardTask) => {
-      if (task.dueDate) {
-        var taskDueDate: Date = new Date(task.dueDate);
-        return (
-          task.completed === false &&
-          taskDueDate.getTime() <= this.startDate.getTime()
-        );
-      }
-      return false;
-    });
+    return this.tasks
+      .filter((task: DashboardTask) => {
+        if (task.dueDate) {
+          var taskDueDate: Date = new Date(task.dueDate);
+          return (
+            task.completed === false &&
+            taskDueDate.getTime() <= this.startDate.getTime()
+          );
+        }
+        return false;
+      })
+      .sort((a, b) => {
+        return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
+      });
   }
 
   setSprintProgress(startDate: Date) {
@@ -99,7 +140,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       diff = this.daysSince(startDate);
     }
     this.startDate = startDate;
-    // console.log('days since start: ', diff);
 
     const ms_per_two_weeks = 86400000 * 13;
     this.endDate = new Date(startDate.getTime() + ms_per_two_weeks);
@@ -138,12 +178,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!task) {
       //if after all that there's no task, something is wrong.
       this.errMsg = `task with id ${id} not found.`;
+      console.log(this.errMsg);
       return;
     } else {
-      // console.log(`check box for id ${task.id} clicked`);
       task.completed = !task.completed;
       this.dashboardService.updateTask(task).subscribe({
-        // next: () => this.updateTasks(),
         error: (err) => {
           this.errMsg = err;
           console.log(err);
@@ -154,13 +193,108 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTaskUI(): void {
-    // console.log('calling ui update...');
-    this.uncompletedTasks = this.filterCompleteTasks(false);
-    this.overdueTasks = this.filterOverdueTasks();
-    this.completedTasks = this.filterCompleteTasks(true);
+    this.uncompletedTasks.all = this.filterCompleteTasks(false).sort((a, b) => {
+      return a.priority - b.priority;
+    });
+    this.overdueTasks.all = this.filterOverdueTasks();
+    this.completedTasks.all = this.filterCompleteTasks(true).sort((a, b) => {
+      return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
+    });
+    //this will update the date / priority sorting for tasks
+    this.changeNumTasksViewed(
+      this.completedTasks.numTasksShown,
+      this.completedTasks
+    );
+    this.changeNumTasksViewed(
+      this.overdueTasks.numTasksShown,
+      this.overdueTasks
+    );
+    this.changeNumTasksViewed(
+      this.uncompletedTasks.numTasksShown,
+      this.uncompletedTasks
+    );
   }
 
   setIdForModal(id: number | null): void {
     this.idForModal = id;
+  }
+
+  changeNumTasksViewed(
+    numTasks: string,
+    list: {
+      shown: DashboardTask[];
+      all: DashboardTask[];
+      numTasksShown?: string;
+    }
+  ): void {
+    if (!list.numTasksShown) {
+      list.numTasksShown = 'All';
+      list.shown = list.all.map((x) => x);
+      return;
+    }
+
+    list.numTasksShown = numTasks;
+    this.updateShownList(list);
+  }
+
+  swapDateSort(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    sortedBy?: string;
+  }): void {
+    if (list.sortedBy === 'dueDate') {
+      list.all = list.all.reverse().map((x) => x);
+    } else {
+      list.sortedBy = 'dueDate';
+      list.all = list.all.sort((a, b) => {
+        return <any>new Date(b.dueDate) - <any>new Date(a.dueDate);
+      });
+    }
+    this.updateShownList(list);
+  }
+
+  swapPrioritySort(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    sortedBy?: string;
+  }): void {
+    if (list.sortedBy === 'priority') {
+      list.all = list.all.reverse().map((x) => x);
+    } else {
+      list.sortedBy = 'priority';
+      list.all = list.all.sort((a, b) => {
+        return a.priority - b.priority;
+      });
+    }
+    this.updateShownList(list);
+  }
+
+  swapDifficultySort(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    sortedBy?: string;
+  }): void {
+    if (list.sortedBy === 'difficulty') {
+      list.all = list.all.reverse().map((x) => x);
+    } else {
+      list.sortedBy = 'difficulty';
+      list.all = list.all.sort((a, b) => {
+        return b.difficulty - a.difficulty;
+      });
+    }
+    this.updateShownList(list);
+  }
+
+  updateShownList(list: {
+    shown: DashboardTask[];
+    all: DashboardTask[];
+    numTasksShown?: string;
+  }): void {
+    if (list.numTasksShown != 'All') {
+      var tasksToSee: number = Number(list.numTasksShown);
+      list.shown = list.all.slice(0, tasksToSee).map((x) => x);
+    } else {
+      list.shown = list.all.map((x) => x);
+    }
   }
 }
