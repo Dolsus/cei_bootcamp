@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit, Type } from '@angular/core';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { SecurityService } from 'src/app/shared/security/services/security.service';
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardTaskEditComponent } from '../dashboard-task-edit/dashboard-task-edit.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'dash-dashboard',
