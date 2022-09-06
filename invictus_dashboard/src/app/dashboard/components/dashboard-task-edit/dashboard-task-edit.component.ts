@@ -86,7 +86,6 @@ export class DashboardTaskEditComponent
 
   ngAfterViewInit(): void {
     this.addModalEventListeners();
-    // console.log(this.exitBtnElement);
   }
 
   addModalEventListeners(): void {
@@ -98,11 +97,6 @@ export class DashboardTaskEditComponent
       'shown.bs.modal',
       this.initOnModalOpen.bind(this)
     );
-
-    // this.taskEditModal.addEventListener(
-    //   'hidden.bs.modal',
-    //   this.onSaveComplete.bind(this)
-    // );
   }
 
   initOnModalOpen(): void {
@@ -211,7 +205,8 @@ export class DashboardTaskEditComponent
 
   getTask(id: number) {
     this.dashboardService.getTask(id).subscribe({
-      next: (task: DashboardTask) => this.displayTask(task),
+      next: (task: DashboardTask) => {
+        this.displayTask(task)},
       error: (err) => (this.apiErrMsg = err),
     });
   }
@@ -239,6 +234,8 @@ export class DashboardTaskEditComponent
       startDate: this.task.startDate,
       dueDate: this.task.dueDate,
     });
+
+    console.log('task form value: ', this.taskForm.get('title').value)
 
     for (var index in this.task.subTasks) {
       this.addSubTask();
@@ -301,6 +298,7 @@ export class DashboardTaskEditComponent
       if (validation) {
         validation.markAsTouched();
         validation.updateValueAndValidity();
+        // this.setMsg(validation, this.taskFormControls[control]);
       }
     }
   }
@@ -371,7 +369,7 @@ export class DashboardTaskEditComponent
   }
 
   ngOnDestroy(): void {
-    console.log('dashboard destroyed.');
+    // console.log('dashboard destroyed.');
     this.taskEditModal.removeAllListeners();
   }
 }

@@ -18,14 +18,14 @@
             {{ this.pageTitle }}
           </h1>
           <!-- <div class="bg-light rounded"> -->
-            <button
+          <button
             id="exitBtn"
             #exitBtn
             type="button"
             class="btn-close m-0"
             data-bs-dismiss="modal"
             aria-label="Close"
-            ></button>
+          ></button>
           <!-- </div> -->
         </div>
         <div class="modal-body">
@@ -158,6 +158,7 @@
                     <div class="col-md-1">
                       <button
                         class="btn btn-outline-danger"
+                        id="{{' deleteSubTask' + i }}"
                         (click)="deleteSubTask(i)"
                       >
                         Delete
@@ -170,6 +171,7 @@
                 <div class="col-3">
                   <button
                     class="btn btn-outline-primary"
+                    id="addSubTask"
                     type="button"
                     (click)="addSubTask()"
                   >
@@ -182,11 +184,13 @@
         </div>
         <div class="modal-footer">
           <button
-          type="button"
-          class="btn btn-danger"
-          *ngIf="this.taskId > 0"
-          (click)="this.isDeleteDialog = true" >
-          Delete</button>
+            type="button"
+            class="btn btn-danger"
+            *ngIf="this.taskId > 0"
+            (click)="this.isDeleteDialog = true"
+          >
+            Delete
+          </button>
           <button
             type="button"
             class="btn btn-secondary"
