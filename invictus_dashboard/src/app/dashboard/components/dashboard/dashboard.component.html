@@ -41,6 +41,7 @@
                 <th>
                   <div class="row">
                     <div
+                      id="uncompletePrioritySort"
                       class="col-auto"
                       (click)="swapPrioritySort(uncompletedTasks)"
                     >
@@ -151,7 +152,6 @@
     </div>
   </div>
 
-  <!-- <ng-template ngFor let-task [ngForOf]="overdueTasks"> -->
   <div class="row mb-4" *ngIf="overdueTasks.all.length">
     <div class="col-10 offset-1 bg-white rounded">
       <div
@@ -178,10 +178,7 @@
                 </th>
                 <th>
                   <div class="row">
-                    <div
-                      class="col-auto"
-                      (click)="swapDateSort(overdueTasks)"
-                    >
+                    <div class="col-auto" (click)="swapDateSort(overdueTasks)">
                       Due Date <i class="fa fa-sort" aria-hidden="true"></i>
                     </div>
                   </div>
@@ -198,11 +195,11 @@
                     type="checkbox"
                     class="form-check-input"
                     value=""
-                    [id]="task.id"
+                    [id]="'overdue' + task.id"
                     [checked]="task.completed"
                     (click)="changeTaskCompleteStatus(task.id)"
                   />
-                  <label [for]="task.id" class="form-check-label">
+                  <label [for]="'overdue' + task.id" class="form-check-label">
                     {{ task.title }}
                   </label>
                 </td>
@@ -216,7 +213,6 @@
       </div>
     </div>
   </div>
-  <!-- </ng-template> -->
 
   <div class="row" *ngIf="completedTasks.all.length">
     <div class="col-10 offset-1 bg-white rounded">
@@ -229,6 +225,7 @@
           <div class="col container-fluid">
             <div class="dropdown d-grid d-md-flex justify-content-md-end">
               <button
+                id="taskShownBtn"
                 type="button"
                 class="btn btn-secondary dropdown-toggle"
                 data-bs-toggle="dropdown"
@@ -237,26 +234,23 @@
               </button>
               <ul class="dropdown-menu">
                 <li
+                  id="taskShown5"
                   class="dropdown-item"
-                  (click)="
-                    changeNumTasksViewed('5', completedTasks)
-                  "
+                  (click)="changeNumTasksViewed('5', completedTasks)"
                 >
                   5
                 </li>
                 <li
+                  id="taskShown10"
                   class="dropdown-item"
-                  (click)="
-                    changeNumTasksViewed('10', completedTasks)
-                  "
+                  (click)="changeNumTasksViewed('10', completedTasks)"
                 >
                   10
                 </li>
                 <li
+                  id="taskShownAll"
                   class="dropdown-item"
-                  (click)="
-                    changeNumTasksViewed('All', completedTasks)
-                  "
+                  (click)="changeNumTasksViewed('All', completedTasks)"
                 >
                   All
                 </li>

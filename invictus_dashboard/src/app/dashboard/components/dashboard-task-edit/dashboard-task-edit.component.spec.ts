@@ -1,4 +1,9 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of, take } from 'rxjs';
@@ -67,23 +72,24 @@ describe('DashboardTaskEditComponent', () => {
     expect(component.taskId).toBe(0);
   });
 
-  it('should populate a form with a task ID input', async () => {
+  it('should populate a form with a task ID input', () => {
+    // note: may need to rework how this is done, may not be the best way
     component.taskId = 1;
-    mockDashboardService.getTask.and.returnValue(of(testTask));
-    //NOTE: this failed when calling ngOnInit or firing change detection again
-    // need to do research as to why.
-    component.checkComponentInputs();
+    mockDashboardService.getTask.and.returnValue({
+      subscribe: () => {
+        component.displayTask(testTask);
+        mockGetTask();
+      },
+    });
 
-    let taskID: number = component.taskForm.get('id').value;
-    let taskTitle: string = component.taskForm.get('title').value;
+    function mockGetTask():void {
+      let taskID: number = component.taskForm.get('id').value;
+      let taskTitle: string = component.taskForm.get('title').value;
 
-    expect(fixture.componentInstance.taskForm.get('title').value).toBe(
-      'first task'
-    );
-
-    expect(taskID).toBe(1);
-    expect(taskTitle).toBe('first task');
-    expect(mockDashboardService.getTask).toHaveBeenCalledOnceWith(1);
+      expect(taskID).toBe(1);
+      expect(taskTitle).toBe('first task');
+      expect(mockDashboardService.getTask).toHaveBeenCalledOnceWith(1);
+    }
   });
 
   it('should initialize a form', () => {
@@ -113,7 +119,6 @@ describe('DashboardTaskEditComponent', () => {
     expect(component.taskForm.valid).toBeTrue();
   });
 
-  //test submisison with both edit + create
   it('should submit a valid form', () => {
     let titleCtrl = component.taskForm.controls['title'];
 
@@ -126,8 +131,11 @@ describe('DashboardTaskEditComponent', () => {
     });
   });
 
-  it('should create/delete a subtask on button click', (() => {
+  it('should create/delete a subtask on button click', () => {
     //note: this failed when trying to swap to a fakeAsync / tick method
+    spyOn(component, 'addSubTask').and.callThrough();
+    spyOn(component, 'deleteSubTask').and.callThrough();
+
     expect(fixture.componentInstance.subTasks.length).toBe(0);
     fixture.nativeElement.querySelector('#addSubTask').click();
 
@@ -137,10 +145,9 @@ describe('DashboardTaskEditComponent', () => {
       fixture.nativeElement.querySelector('#deleteSubTask0').click();
     });
 
-
     fixture.whenStable().then(() => {
       expect(component.deleteSubTask).toHaveBeenCalled();
       expect(component.subTasks.length).toBe(0);
-    })
-  }));
+    });
+  });
 });
