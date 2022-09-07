@@ -82,6 +82,7 @@ describe('DashboardTaskEditComponent', () => {
       },
     });
 
+    component.ngOnInit();
     function mockGetTask():void {
       let taskID: number = component.taskForm.get('id').value;
       let taskTitle: string = component.taskForm.get('title').value;
