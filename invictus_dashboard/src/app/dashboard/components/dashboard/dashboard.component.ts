@@ -81,14 +81,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTasks(): void {
-    this.sub = this.dashboardService.getTasks().subscribe({
-      next: (tasks) => {
-        this.tasks = tasks;
-      },
-      error: (err) => {
-        this.errMsg = err;
-        console.log(this.errMsg);
-      },
+    this.sub = this.dashboardService.getTasks().subscribe((tasks) => {
+      this.tasks = tasks;
     });
   }
 

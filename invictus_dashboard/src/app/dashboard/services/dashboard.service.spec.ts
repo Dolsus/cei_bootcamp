@@ -15,58 +15,59 @@ describe('DashboardService', () => {
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
 
-  let testTaskList: DashboardTask[] = [
-    {
-      id: 1,
-      title: 'first task',
-      difficulty: 5,
-      priority: taskPriority.high,
-      completed: false,
-      dueDate: new Date(),
-      subTasks: [
-        {
-          id: 1.1,
-          title: 'first subtask',
-          difficulty: 1,
-          priority: taskPriority.low,
-          completed: false,
-        },
-        {
-          id: 1.2,
-          title: 'second subtask',
-          difficulty: 1,
-          priority: taskPriority.low,
-          completed: false,
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: 'cool task',
-      difficulty: 1,
-      priority: taskPriority.low,
-      completed: false,
-      dueDate: new Date('06/14/2022'),
-    },
-    {
-      id: 3,
-      title: 'next task',
-      difficulty: 2,
-      priority: taskPriority.standard,
-      dueDate: new Date(),
-      completed: false,
-    },
-    {
-      id: 4,
-      title: 'completed task 1',
-      difficulty: 1,
-      priority: taskPriority.low,
-      completed: true,
-      dueDate: new Date('07/11/2022'),
-    },
-  ];
-
+  let testTaskList: DashboardTask[];
   beforeEach(() => {
+    testTaskList = [
+      {
+        id: 1,
+        title: 'first task',
+        difficulty: 5,
+        priority: taskPriority.high,
+        completed: false,
+        dueDate: new Date(),
+        subTasks: [
+          {
+            id: 1.1,
+            title: 'first subtask',
+            difficulty: 1,
+            priority: taskPriority.low,
+            completed: false,
+          },
+          {
+            id: 1.2,
+            title: 'second subtask',
+            difficulty: 1,
+            priority: taskPriority.low,
+            completed: false,
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: 'cool task',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: false,
+        dueDate: new Date('06/14/2022'),
+      },
+      {
+        id: 3,
+        title: 'next task',
+        difficulty: 2,
+        priority: taskPriority.standard,
+        dueDate: new Date(),
+        completed: false,
+      },
+      {
+        id: 4,
+        title: 'completed task 1',
+        difficulty: 1,
+        priority: taskPriority.low,
+        completed: true,
+        dueDate: new Date('07/11/2022'),
+      },
+    ];
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
     });

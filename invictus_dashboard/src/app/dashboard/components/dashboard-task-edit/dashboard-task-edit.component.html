@@ -187,14 +187,14 @@
             type="button"
             class="btn btn-danger"
             *ngIf="this.taskId > 0"
-            (click)="this.isDeleteDialog = true"
+            (click)="this.onDelete()"
           >
             Delete
           </button>
           <button
             type="button"
             class="btn btn-secondary"
-            (click)="this.isDeleteDialog = false"
+            (click)="this.onCancel()"
           >
             Cancel
           </button>

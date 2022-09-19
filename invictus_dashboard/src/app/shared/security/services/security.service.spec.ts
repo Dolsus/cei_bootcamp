@@ -5,17 +5,17 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { take } from 'rxjs';
 import { SharedModule } from '../../shared.module';
 import { AppUser } from '../app-user';
 import { AppUserAuth } from '../app-user-auth';
-import { UsersData } from '../users-data';
 import { SecurityService } from './security.service';
 
 describe('SecurityService', () => {
   let service: SecurityService;
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
-  let testUserList: AppUser[];
+  let testUserList: AppUserAuth[];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -25,7 +25,21 @@ describe('SecurityService', () => {
     httpClient = TestBed.inject(HttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);
     service = TestBed.inject(SecurityService);
-    testUserList = UsersData;
+    testUserList = [
+      {
+        id: 0,
+        userName: 'guest',
+        password: '123',
+        bearerToken: 'qwertyuiopqwer',
+        isAuthenticated: true,
+        canAccessTasks: true,
+        canCompleteTasks: false,
+        canAddTasks: false,
+        canAccessWiki: false,
+        canAddToWiki: false,
+        canEditWiki: false,
+      },
+    ];
   });
 
   it('should be created', () => {
@@ -33,10 +47,8 @@ describe('SecurityService', () => {
   });
 
   it('should get inital list of users with a GET HTTP req', () => {
-    service.getUsers().subscribe({
-      next: (data: AppUser[]) => {
-        expect(data).toBe(testUserList);
-      },
+    service.getUsers().subscribe((data: AppUser[]) => {
+      expect(data).toBe(testUserList);
     });
 
     const req = httpTestingController.expectOne('api/users');

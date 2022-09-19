@@ -40,22 +40,6 @@ export class DashboardTaskEditComponent
   sprintEndDateString!: string;
   taskFormControls: string[] = [];
 
-  _isDeleteDialog!: boolean;
-  set isDeleteDialog(isDelete: boolean) {
-    this._isDeleteDialog = isDelete;
-    if (!isDelete && this.taskId > 0) {
-      this.onSaveComplete();
-      return;
-    }
-
-    const dialogText: string = this.setDialogText(isDelete);
-    if (isDelete) {
-      this.onDelete(confirm(dialogText));
-    } else {
-      this.onCancel(confirm(dialogText));
-    }
-  }
-
   private validationMsgs = {
     required: 'This field is required.',
     range: 'Please enter a number between 1 and 5.',
@@ -76,7 +60,7 @@ export class DashboardTaskEditComponent
 
   constructor(
     private fb: FormBuilder,
-    private dashboardService: DashboardService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
@@ -204,10 +188,8 @@ export class DashboardTaskEditComponent
   }
 
   getTask(id: number) {
-    this.dashboardService.getTask(id).subscribe({
-      next: (task: DashboardTask) => {
-        this.displayTask(task)},
-      error: (err) => (this.apiErrMsg = err),
+    this.dashboardService.getTask(id).subscribe((task: DashboardTask) => {
+      this.displayTask(task);
     });
   }
 
@@ -235,7 +217,7 @@ export class DashboardTaskEditComponent
       dueDate: this.task.dueDate,
     });
 
-    console.log('task form value: ', this.taskForm.get('title').value)
+    console.log('task form value: ', this.taskForm.get('title').value);
 
     for (var index in this.task.subTasks) {
       this.addSubTask();
@@ -261,27 +243,15 @@ export class DashboardTaskEditComponent
 
         if (t.id === 0) {
           // console.log(`creating task: ${t.title}`);
-          this.dashboardService.createTask(t).subscribe({
-            next: () => {
-              if (this.dashboardService.lastTaskModified) {
-                this.initSubTasks(this.dashboardService.lastTaskModified);
-              }
-            },
-            error: (err) => {
-              this.apiErrMsg = err;
-              console.log(err);
-            },
+          this.dashboardService.createTask(t).subscribe(() => {
+            if (this.dashboardService.lastTaskModified) {
+              this.initSubTasks(this.dashboardService.lastTaskModified);
+            }
           });
         } else {
-          this.dashboardService.updateTask(t).subscribe({
-            next: () => {
-              this.initSubTasks(t);
-            },
-            error: (err) => {
-              this.apiErrMsg = err;
-              console.log(err);
-            },
-          });
+          this.dashboardService
+            .updateTask(t)
+            .subscribe(() => this.initSubTasks(t));
         }
       } else {
         this.onSaveComplete();
@@ -315,36 +285,34 @@ export class DashboardTaskEditComponent
     }
 
     if (subTaskAltered) {
-      this.dashboardService.updateTask(task).subscribe({
-        next: () => this.onSaveComplete(),
-        error: (err) => {
-          this.apiErrMsg = err;
-          console.log(err);
-        },
-      });
+      this.dashboardService
+        .updateTask(task)
+        .subscribe(() => this.onSaveComplete());
     } else {
       this.onSaveComplete();
     }
   }
 
-  onCancel(confirm: boolean) {
-    if (confirm) {
+  onCancel() {
+    const dialogText: string =
+      'Leaving the form will clear unsaved data. Are you sure you want to exit?';
+    if (confirm(dialogText)) {
       this.onSaveComplete();
     }
   }
 
-  onDelete(confirm: boolean) {
-    console.log('delete confirmed: ', confirm);
-    if (!this.task.id || this.task.id === 0) {
-      if (!confirm) {
+  onDelete() {
+    const dialogText: string = `Delete ${
+      this.taskForm.get('title').value
+    }? This action cannot be undone.`;
+
+    if (this.task.id !== 0) {
+      if (confirm(dialogText)) {
+        this.dashboardService
+          .deleteTask(this.task.id)
+          .subscribe(() => this.onSaveComplete());
+      } else {
         this.onSaveComplete();
-      }
-    } else {
-      if (confirm) {
-        this.dashboardService.deleteTask(this.task.id).subscribe({
-          next: () => this.onSaveComplete(),
-          error: (err) => (this.apiErrMsg = err),
-        });
       }
     }
   }

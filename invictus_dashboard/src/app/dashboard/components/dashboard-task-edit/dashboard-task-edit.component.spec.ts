@@ -6,7 +6,7 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
-import { of, take } from 'rxjs';
+import { Observable, of, take } from 'rxjs';
 import { UsersData } from 'src/app/shared/security/users-data';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
@@ -17,7 +17,7 @@ import { DashboardTaskEditComponent } from './dashboard-task-edit.component';
 describe('DashboardTaskEditComponent', () => {
   let component: DashboardTaskEditComponent;
   let fixture: ComponentFixture<DashboardTaskEditComponent>;
-  let mockDashboardService: any;
+  let mockDashboardService: jasmine.SpyObj<DashboardService>;
   let testTask: DashboardTask;
 
   beforeEach(async () => {
@@ -75,12 +75,14 @@ describe('DashboardTaskEditComponent', () => {
   it('should populate a form with a task ID input', () => {
     // note: may need to rework how this is done, may not be the best way
     component.taskId = 1;
-    mockDashboardService.getTask.and.returnValue({
-      subscribe: () => {
+    mockDashboardService.getTask.and.callFake(
+       () => {
         component.displayTask(testTask);
         mockGetTask();
-      },
-    });
+        let mockReturn: Observable<DashboardTask> = new Observable;
+        return mockReturn;
+      }
+    );
 
     component.ngOnInit();
     function mockGetTask():void {
@@ -101,15 +103,23 @@ describe('DashboardTaskEditComponent', () => {
     expect(component.taskForm.valid).toBeFalsy();
   });
 
-  it('should error check required fields', () => {
+  it('should error check empty required fields', () => {
     let title = component.taskForm.get('title');
-    let titleCtrl = component.taskForm.controls['title'];
 
     component.checkAllValidation();
     component.setMsg(title, 'title');
     let titleErr = component.errMsg['title'];
 
     expect(titleErr).toBe('This field is required.');
+
+
+  });
+
+  it('should error check filled required fields', () => {
+    let title = component.taskForm.get('title');
+    let titleCtrl = component.taskForm.controls['title'];
+    let titleErr = component.errMsg['title'];
+
 
     titleCtrl.setValue('test');
     component.checkAllValidation();
@@ -118,7 +128,7 @@ describe('DashboardTaskEditComponent', () => {
 
     expect(titleErr).toBe('');
     expect(component.taskForm.valid).toBeTrue();
-  });
+  })
 
   it('should submit a valid form', () => {
     let titleCtrl = component.taskForm.controls['title'];
