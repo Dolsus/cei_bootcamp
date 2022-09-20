@@ -100,42 +100,40 @@ export class LoginComponent implements OnInit {
 
   login(): void {
     this.securityService.clearSecurityObj();
-    this.securityService.getUsers().subscribe({
-      next: (users) => {
-        var user: AppUserAuth = users.find(
-          (data) =>
-            data.userName.toLowerCase() === this.currentUsername.toLowerCase()
-        );
+    this.securityService.getUsers().subscribe((users) => {
+      var user: AppUserAuth = users.find(
+        (data) =>
+          data.userName.toLowerCase() === this.currentUsername.toLowerCase()
+      );
 
-        if (user) {
-          this.securityObj = { ...this.securityObj, ...user };
-          if (this.user.password == user.password) {
-            this.securityService.securityObj = {
-              ...this.securityService.securityObj,
-              ...this.securityObj,
-            };
-            localStorage.setItem('bearerToken', this.securityObj.bearerToken);
-            if (this.returnUrl) {
-              //there is probably a better way to check whether a user has the correct permissions
-              //TODO: look into this
-              if (
-                (this.returnUrl == '/companions' ||
-                  this.returnUrl == '/quests' ||
-                  this.returnUrl == '/factions') &&
-                this.securityObj.canAccessWiki
-              ) {
-                this.router.navigateByUrl(this.returnUrl);
-              } else {
-                this.router.navigate(['/home']);
-              }
+      if (user) {
+        this.securityObj = { ...this.securityObj, ...user };
+        if (this.user.password == user.password) {
+          this.securityService.securityObj = {
+            ...this.securityService.securityObj,
+            ...this.securityObj,
+          };
+          localStorage.setItem('bearerToken', this.securityObj.bearerToken);
+          if (this.returnUrl) {
+            //there is probably a better way to check whether a user has the correct permissions
+            //TODO: look into this
+            if (
+              (this.returnUrl == '/companions' ||
+                this.returnUrl == '/quests' ||
+                this.returnUrl == '/factions') &&
+              this.securityObj.canAccessWiki
+            ) {
+              this.router.navigateByUrl(this.returnUrl);
             } else {
               this.router.navigate(['/home']);
             }
           } else {
-            this.securityObj.isAuthenticated = false;
+            this.router.navigate(['/home']);
           }
+        } else {
+          this.securityObj.isAuthenticated = false;
         }
-      },
+      }
     });
   }
 

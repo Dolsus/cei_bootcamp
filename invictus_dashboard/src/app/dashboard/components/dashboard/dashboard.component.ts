@@ -1,9 +1,8 @@
-import { Component, OnDestroy, OnInit, Type } from '@angular/core';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { SecurityService } from 'src/app/shared/security/services/security.service';
 import { DashboardTask, taskPriority } from '../../services/dashboard-task';
 import { DashboardService } from '../../services/dashboard.service';
-import { DashboardTaskEditComponent } from '../dashboard-task-edit/dashboard-task-edit.component';
 
 @Component({
   selector: 'dash-dashboard',
@@ -82,14 +81,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateTasks(): void {
-    this.sub = this.dashboardService.getTasks().subscribe({
-      next: (tasks) => {
-        this.tasks = tasks;
-      },
-      error: (err) => {
-        this.errMsg = err;
-        console.log(this.errMsg);
-      },
+    this.sub = this.dashboardService.getTasks().subscribe((tasks) => {
+      this.tasks = tasks;
     });
   }
 
