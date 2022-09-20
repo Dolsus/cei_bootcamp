@@ -317,19 +317,6 @@ export class DashboardTaskEditComponent
     }
   }
 
-  setDialogText(isDelete: boolean): string {
-    var modalText: string = '';
-    if (isDelete) {
-      modalText = `Delete ${
-        this.taskForm.get('title').value
-      }? This action cannot be undone.`;
-    } else {
-      modalText =
-        'Leaving the form will clear unsaved data. Are you sure you want to exit?';
-    }
-    return modalText;
-  }
-
   onSaveComplete(): void {
     this.taskForm.reset();
     this.taskChangeEvent.emit('task');
