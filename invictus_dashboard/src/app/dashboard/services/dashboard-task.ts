@@ -15,4 +15,6 @@ export interface DashboardTask{
   startDate?: Date; //only the main task will have a start date - probably not sub-tasks
   dueDate?: Date;
   subTasks?: DashboardTask[];
+
+  // add tags? Companion / Faction / Quest / Misc
 }
