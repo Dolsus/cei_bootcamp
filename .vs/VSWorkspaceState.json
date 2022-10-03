@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\InvictusDashboard",
+    "\\InvictusDashboard\\Data",
+    "\\InvictusDashboard\\Data\\Entities",
+    "\\InvictusDashboard\\Views",
+    "\\InvictusDashboard\\Views\\App",
+    "\\invictus_dashboard\\src",
+    "\\invictus_dashboard\\src\\app",
+    "\\invictus_dashboard\\src\\app\\dashboard",
+    "\\invictus_dashboard\\src\\app\\dashboard\\services"
+  ],
+  "SelectedNode": "\\InvictusDashboard\\Views\\App\\Index.cshtml",
+  "PreviewInSolutionExplorer": false
+}
